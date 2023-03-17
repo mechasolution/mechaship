@@ -25,12 +25,15 @@ def generate_launch_description():
         "mechaship_lidar_parameter", default_value=mechaship_lidar_parameter
     )
     lidar_driver_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            [ThisLaunchFileDir(), "/mechaship_lidar.launch.py"]
-        ),
-        launch_arguments={
-            "mechaship_lidar_parameter": mechaship_lidar_parameter
-        }.items(),
+        PythonLaunchDescriptionSource([ThisLaunchFileDir(), "/mechaship_lidar.launch.py"]),
+        launch_arguments={"mechaship_lidar_parameter": mechaship_lidar_parameter}.items(),
+    )
+
+    # csi 카메라
+    camera_driver_node = Node(
+        package="jetson_csi_camera_ros2_driver",
+        executable="jetson_csi_camera_ros2_driver_node",
+        name="jetson_csi_camera_ros2_driver_node",
     )
 
     # LiDAR TF2
@@ -55,5 +58,6 @@ def generate_launch_description():
             lidar_driver_launch,
             lidar_tf_node,
             micro_ros_node,
+            camera_driver_node,
         ]
     )
