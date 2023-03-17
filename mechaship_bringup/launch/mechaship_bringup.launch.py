@@ -9,6 +9,7 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch.substitutions import ThisLaunchFileDir
 
+
 from launch_ros.actions import Node, PushRosNamespace, LifecycleNode
 
 
@@ -30,10 +31,11 @@ def generate_launch_description():
     )
 
     # csi 카메라
-    camera_driver_node = Node(
-        package="jetson_csi_camera_ros2_driver",
-        executable="jetson_csi_camera_ros2_driver_node",
-        name="jetson_csi_camera_ros2_driver_node",
+    camera_driver_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            get_package_share_directory("jetson_csi_camera_ros2_driver")
+            + "/launch/jetson_csi_camera_ros2_driver.launch.py"
+        )
     )
 
     # LiDAR TF2
@@ -58,6 +60,7 @@ def generate_launch_description():
             lidar_driver_launch,
             lidar_tf_node,
             micro_ros_node,
-            camera_driver_node,
+            # camera_driver_node,
+            camera_driver_launch,
         ]
     )
