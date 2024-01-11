@@ -1,10 +1,8 @@
 import rclpy
+from mechaship_interfaces.srv import Key, RGBColor, ThrottlePercentage
 from rclpy.node import Node
 from rclpy.qos import QoSProfile
-
 from sensor_msgs.msg import Joy
-
-from mechaship_interfaces.srv import ThrottlePercentage, Key, RGBColor
 
 
 def map(x, input_min, input_max, output_min, output_max):
