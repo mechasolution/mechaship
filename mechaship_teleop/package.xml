@@ -4,9 +4,9 @@
   <name>mechaship_teleop</name>
   <version>0.1.0</version>
   <description>Teleoperation node for MechaShip</description>
-  <author email="max@mechasolution.com">Max Cha</author>
   <maintainer email="techms5499@gmail.com">Mechasolution</maintainer>
   <license>Apache 2.0</license>
+  <author email="max@mechasolution.com">Max Cha</author>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
