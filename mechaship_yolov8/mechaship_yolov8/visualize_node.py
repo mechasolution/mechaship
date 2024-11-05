@@ -1,12 +1,10 @@
+import cv2
+import message_filters
 import rclpy
+from cv_bridge import CvBridge
 from rclpy.node import Node
 from rclpy.parameter import Parameter
 from rclpy.qos import qos_profile_sensor_data
-import message_filters
-
-import cv2
-from cv_bridge import CvBridge
-
 from sensor_msgs.msg import Image
 from vision_msgs.msg import Detection2D, Detection2DArray, ObjectHypothesisWithPose
 
@@ -188,9 +186,7 @@ class VisualizeNode(Node):
             cv2.imshow("Processed Image", cv_image)
             cv2.waitKey(1)
 
-        processed_image_msg = self.br.cv2_to_imgmsg(
-            cv_image
-        )
+        processed_image_msg = self.br.cv2_to_imgmsg(cv_image)
         processed_image_msg.header = image_msg.header
 
         self.processed_image_publisher.publish(processed_image_msg)

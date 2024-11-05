@@ -37,9 +37,8 @@ import select
 import sys
 
 import rclpy
-from rclpy.qos import QoSProfile
-
 from mechaship_interfaces.srv import Key, ThrottlePercentage
+from rclpy.qos import QoSProfile
 
 if os.name == "nt":
     import msvcrt
