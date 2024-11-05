@@ -1,6 +1,5 @@
 import os
 
-import xacro
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
@@ -10,19 +9,17 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     use_sim_time = LaunchConfiguration("use_sim_time", default="false")
-    urdf_file_name = "mechaship.urdf.xacro"
 
-    urdf_path = os.path.join(
-        get_package_share_directory("mechaship_description"), "urdf", urdf_file_name
+    sdf_path = os.path.join(
+        "sdf_path",
+        get_package_share_directory("mechaship_description"),
+        "models",
+        "mechaship",
+        "model.sdf",
     )
-    urdf_xacro = xacro.process_file(
-        urdf_path,
-        mappings={
-            "mechaship_description",
-            get_package_share_directory("mechaship_description"),
-        },
-    )
-    urdf = urdf_xacro.toprettyxml(indent="  ")
+
+    with open(sdf_path, "r") as sdf:
+        robot_desc = sdf.read()
 
     return LaunchDescription(
         [
@@ -37,10 +34,8 @@ def generate_launch_description():
                 name="robot_state_publisher",
                 output="screen",
                 parameters=[
-                    {
-                        "use_sim_time": use_sim_time,
-                        "robot_description": urdf,
-                    }
+                    {"use_sim_time": use_sim_time},
+                    {"robot_description": robot_desc},
                 ],
             ),
         ]
