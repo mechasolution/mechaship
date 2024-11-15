@@ -5,68 +5,115 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
-from launch_ros.actions import Node
+from launch_ros.actions import LifecycleNode, Node
 
 
 def generate_launch_description():
-    # csi 카메라 드라이버
-    camera_driver_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(
-                get_package_share_directory("jetson_csi_camera_ros2_driver"),
-                "launch",
-                "jetson_csi_camera_ros2_driver.launch.py",
-            )
-        )
+    # 파라미터 폴더
+    pkg_share_dir_param = os.path.join(
+        get_package_share_directory("mechaship_bringup"), "param"
+    )
+
+    # USB 카메라 드라이버
+    mechaship_camera_parameter = LaunchConfiguration(
+        "mechaship_camera_parameter",
+        default=os.path.join(pkg_share_dir_param, "mechaship_camera.yaml"),
+    )
+    usb_camera_launch_arg = DeclareLaunchArgument(
+        "mechaship_camera_parameter", default_value=mechaship_camera_parameter
+    )
+    usb_camera_node = Node(
+        executable="usb_cam_node_exe",
+        package="usb_cam",
+        name="usb_cam_node_exe",
+        namespace="/",
+        parameters=[mechaship_camera_parameter],
+        # debug
+        output="screen",
+        emulate_tty=True,
     )
 
     # LiDAR 드라이버
     mechaship_lidar_parameter = LaunchConfiguration(
         "mechaship_lidar_parameter",
-        default=os.path.join(
-            get_package_share_directory("mechaship_bringup"),
-            "param",
-            "mechaship_lidar.yaml",
-        ),
+        default=os.path.join(pkg_share_dir_param, "mechaship_lidar.yaml"),
     )
     lidar_driver_launch_arg = DeclareLaunchArgument(
         "mechaship_lidar_parameter", default_value=mechaship_lidar_parameter
     )
-    lidar_driver_launch = IncludeLaunchDescription(
+    lidar_driver_node = LifecycleNode(
+        executable="ydlidar_ros2_driver_node",
+        package="ydlidar_ros2_driver",
+        name="ydlidar_ros2_driver_node",
+        namespace="",
+        parameters=[mechaship_lidar_parameter],
+        # debug
+        output="screen",
+        emulate_tty=True,
+    )
+
+    # IMU 드라이버
+    mechaship_imu_parameter = LaunchConfiguration(
+        "mechaship_imu_parameter",
+        default=os.path.join(pkg_share_dir_param, "mechaship_imu.yaml"),
+    )
+    imu_driver_launch_arg = DeclareLaunchArgument(
+        "mechaship_imu_parameter", default_value=mechaship_imu_parameter
+    )
+    imu_driver_node = Node(
+        executable="iahrs_ros2_driver_node",
+        package="iahrs_ros2_driver",
+        name="iahrs_ros2_driver",
+        namespace="",
+        parameters=[mechaship_imu_parameter],
+        remappings=[("imu/data", "imu")],
+        # debug
+        output="screen",
+        emulate_tty=True,
+    )
+
+    # 로봇 형상 정보 publish
+    robot_state_publisher = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(
-                get_package_share_directory("mechaship_bringup"),
+                get_package_share_directory("mechaship_description"),
                 "launch",
-                "mechaship_lidar.launch.py",
+                "mechaship_state_publisher.launch.py",
             )
-        ),
-        launch_arguments={
-            "mechaship_lidar_parameter": mechaship_lidar_parameter
-        }.items(),
+        )
     )
 
-    # LiDAR TF2
-    lidar_tf_node = Node(
-        package="tf2_ros",
-        executable="static_transform_publisher",
-        name="static_tf_pub_laser",
-        arguments=["0", "0", "0", "0", "0", "0", "0", "base_link", "base_scan"],
-    )
-
-    # micro-ros
-    micro_ros_node = Node(
-        package="micro_ros_agent",
-        executable="micro_ros_agent",
-        name="micro_ros_agent",
-        arguments=["serial", "--dev", "/dev/ttyMCU"],
+    # LiDAR 기반 Odometry publish
+    rf2o_laser_odometry_node = Node(
+        executable="rf2o_laser_odometry_node",
+        package="rf2o_laser_odometry",
+        name="rf2o_laser_odometry",
+        namespace="/",
+        parameters=[
+            {
+                "laser_scan_topic": "scan",
+                "odom_topic": "odom",
+                "publish_tf": True,
+                "base_frame_id": "base_footprint",
+                "odom_frame_id": "odom",
+                "init_pose_from_topic": "",
+                "freq": 10.0,
+            }
+        ],
+        # debug
+        output="screen",
+        emulate_tty=True,
     )
 
     return LaunchDescription(
         [
-            camera_driver_launch,
+            usb_camera_launch_arg,
+            usb_camera_node,
             lidar_driver_launch_arg,
-            lidar_driver_launch,
-            lidar_tf_node,
-            micro_ros_node,
+            lidar_driver_node,
+            imu_driver_launch_arg,
+            imu_driver_node,
+            robot_state_publisher,
+            rf2o_laser_odometry_node,
         ]
     )
