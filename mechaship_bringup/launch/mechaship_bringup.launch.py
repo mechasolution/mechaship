@@ -14,6 +14,25 @@ def generate_launch_description():
         get_package_share_directory("mechaship_bringup"), "param"
     )
 
+    # 액추에이터
+    mechaship_actuator_parameter = LaunchConfiguration(
+        "mechaship_actuator_parameter",
+        default=os.path.join(pkg_share_dir_param, "mechaship_actuator.yaml"),
+    )
+    actuator_cfg_launch_arg = DeclareLaunchArgument(
+        "mechaship_actuator_parameter", default_value=mechaship_actuator_parameter
+    )
+    actuator_cfg_node = Node(
+        executable="actuator_enable_node",
+        package="mechaship_system",
+        name="actuator_cfg_node",
+        namespace="/mechaship",
+        parameters=[mechaship_actuator_parameter],
+        # debug
+        output="screen",
+        emulate_tty=True,
+    )
+
     # USB 카메라 드라이버
     mechaship_camera_parameter = LaunchConfiguration(
         "mechaship_camera_parameter",
@@ -107,6 +126,8 @@ def generate_launch_description():
 
     return LaunchDescription(
         [
+            actuator_cfg_launch_arg,
+            actuator_cfg_node,
             usb_camera_launch_arg,
             usb_camera_node,
             lidar_driver_launch_arg,
