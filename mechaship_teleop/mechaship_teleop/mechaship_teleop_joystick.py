@@ -139,22 +139,6 @@ class TeleopJoystick(Node):
         self.__key_publisher_hd.publish(self.__key_degree_msg)
         self.__throttle_publisher_hd.publish(self.__throttle_percentage_msg)
 
-    def shutdown(self):
-        node = rclpy.create_node("teleop_joystick_stop")
-
-        self.__key_degree_msg.data = self.__KEY_CENTER_DEGREE
-        self.__throttle_percentage_msg.data = self.__THROTTLE_MIN_PERCENTAGE
-
-        key_hd = node.create_publisher(Float32, "actuator/key/degree", 10)
-        th_hd = node.create_publisher(Float32, "actuator/thruster/percentage", 10)
-
-        for _ in range(0, 10):
-            key_hd.publish(self.__key_degree_msg)
-            th_hd.publish(self.__throttle_percentage_msg)
-            time.sleep(0.1)
-
-        node.destroy_node()
-
 
 def main(args=None):
     rclpy.init(args=args)
@@ -168,11 +152,6 @@ def main(args=None):
         pass
 
     finally:
-        rclpy.try_shutdown()
-
-        rclpy.init(args=args)
-        teleop_joystick.shutdown()
-
         teleop_joystick.destroy_node()
         rclpy.try_shutdown()
 
