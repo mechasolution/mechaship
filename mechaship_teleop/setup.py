@@ -22,6 +22,7 @@ setup(
     entry_points={
         "console_scripts": [
             "mechaship_teleop_keyboard = mechaship_teleop.mechaship_teleop_keyboard:main",
+            "mechaship_teleop_joystick = mechaship_teleop.mechaship_teleop_joystick:main",
         ],
     },
 )
