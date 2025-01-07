@@ -31,7 +31,7 @@ def generate_launch_description():
         package="mechaship_system",
         executable="actuator_enable_node",
         name="actuator_enable_node",
-        namespace="/mechaship",
+        namespace="",
         output="screen",
         emulate_tty=True,
         parameters=[actuator_params],

@@ -46,7 +46,7 @@ def generate_launch_description():
         package="micro_ros_agent",
         executable="micro_ros_agent",
         name="micro_ros_agent",
-        namespace="/mechaship",
+        namespace="",
         arguments=["serial", "--dev", device_name],
         emulate_tty=True,
     )
@@ -55,7 +55,7 @@ def generate_launch_description():
         package="mechaship_system",
         executable="service_node",
         name="service_node",
-        namespace="/mechaship",
+        namespace="",
         emulate_tty=True,
         parameters=[service_params],
     )
