@@ -38,7 +38,6 @@ find_package(rosidl_default_generators REQUIRED)
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/RgbwLedColor.msg"
   "msg/ToneTopic.msg"
-  "msg/Tone.msg"
   "srv/ActuatorDisable.srv"
   "srv/ActuatorEnable.srv"
   "srv/Tone.srv"
