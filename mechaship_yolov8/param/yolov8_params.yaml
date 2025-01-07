@@ -1,6 +1,6 @@
 /detect_node:
   ros__parameters:
-    image_topic: "/image_raw"
+    image_topic: "/image_raw/compressed"
     model_params:
       model: "yolov8.rknn"
       img_size: 640
@@ -10,6 +10,6 @@
 
 /visualize_node:
   ros__parameters:
-    image_topic: "/image_raw"
+    image_topic: "/image_raw/compressed"
     detections_topic: "/detections"
     preview: True
