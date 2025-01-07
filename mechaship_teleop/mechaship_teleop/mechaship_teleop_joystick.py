@@ -22,7 +22,7 @@ def constrain(input_vel, low_bound, high_bound):
 
 
 class TeleopJoystick(Node):
-    __KEY_MIN_DEGREE = 0.0
+    __KEY_MIN_DEGREE = 60.0
     __KEY_CENTER_DEGREE = 90.0
     __KEY_MAX_DEGREE = 120.0
 
