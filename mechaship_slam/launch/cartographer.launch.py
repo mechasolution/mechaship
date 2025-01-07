@@ -9,7 +9,7 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():
-    # get use_sim_time
+    # 시뮬레이션 시간(가제보) 사용 여부 가져오기
     param_stdout = subprocess.run(
         ["ros2", "param", "get", "/robot_state_publisher", "use_sim_time"],
         capture_output=True,
@@ -29,10 +29,10 @@ def generate_launch_description():
         "configuration_basename", default="mechaship.lua"
     )
     cartographer_node = Node(
-        package="cartographer_ros",
         executable="cartographer_node",
+        package="cartographer_ros",
         name="cartographer_node",
-        output="screen",
+        namespace="",
         parameters=[{"use_sim_time": use_sim_time}],
         arguments=[
             "-configuration_directory",
@@ -40,16 +40,19 @@ def generate_launch_description():
             "-configuration_basename",
             configuration_basename,
         ],
+        # debug
+        output="screen",
+        emulate_tty=True,
     )
 
     # occupancy grid
     resolution = LaunchConfiguration("resolution", default="0.05")
     publish_period_sec = LaunchConfiguration("publish_period_sec", default="1.0")
     occupancy_grid_node = Node(
-        package="cartographer_ros",
         executable="cartographer_occupancy_grid_node",
+        package="cartographer_ros",
         name="cartographer_occupancy_grid_node",
-        output="screen",
+        namespace="",
         parameters=[{"use_sim_time": use_sim_time}],
         arguments=[
             "-resolution",
@@ -57,6 +60,9 @@ def generate_launch_description():
             "-publish_period_sec",
             publish_period_sec,
         ],
+        # debug
+        output="screen",
+        emulate_tty=True,
     )
 
     return LaunchDescription(

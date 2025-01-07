@@ -1,6 +1,6 @@
 iahrs_ros2_driver:
   ros__parameters:
-    port: /dev/ttyUSB1
+    port: /dev/ttyIMU
     frame_id: imu_link
     publish_tf: false # tf publish 여부
     # base_link -> imu_link로 (0, 0, 0, 0, 0, 0, 1) tf publish

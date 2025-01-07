@@ -9,7 +9,7 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():
-    # get use_sim_time
+    # 시뮬레이션 시간(가제보) 사용 여부 가져오기
     param_stdout = subprocess.run(
         ["ros2", "param", "get", "/robot_state_publisher", "use_sim_time"],
         capture_output=True,
@@ -27,12 +27,15 @@ def generate_launch_description():
         "mechaship_cartographer.rviz",
     )
     rviz2_node = Node(
-        package="rviz2",
         executable="rviz2",
+        package="rviz2",
         name="rviz2",
-        arguments=["-d", rviz_config_dir],
+        namespace="",
         parameters=[{"use_sim_time": use_sim_time}],
+        arguments=["-d", rviz_config_dir],
+        # debug
         output="screen",
+        emulate_tty=True,
     )
 
     return LaunchDescription(

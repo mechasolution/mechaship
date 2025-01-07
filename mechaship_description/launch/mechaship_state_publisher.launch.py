@@ -8,8 +8,10 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():
+    # 시뮬레이션 시간(가제보) 사용 여부
     use_sim_time = LaunchConfiguration("use_sim_time", default="false")
 
+    # model.sdf 파일 경로
     sdf_path = os.path.join(
         "sdf_path",
         get_package_share_directory("mechaship_description"),
@@ -29,14 +31,17 @@ def generate_launch_description():
                 description="Use simulation (Gazebo) clock if true",
             ),
             Node(
-                package="robot_state_publisher",
                 executable="robot_state_publisher",
+                package="robot_state_publisher",
                 name="robot_state_publisher",
-                output="screen",
+                namespace="",
                 parameters=[
                     {"use_sim_time": use_sim_time},
                     {"robot_description": robot_desc},
                 ],
+                # debug
+                output="screen",
+                emulate_tty=True,
             ),
         ]
     )

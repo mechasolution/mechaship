@@ -26,7 +26,7 @@ def generate_launch_description():
         executable="actuator_enable_node",
         package="mechaship_system",
         name="actuator_cfg_node",
-        namespace="/mechaship",
+        namespace="",
         parameters=[mechaship_actuator_parameter],
         # debug
         output="screen",
@@ -45,7 +45,7 @@ def generate_launch_description():
         executable="usb_cam_node_exe",
         package="usb_cam",
         name="usb_cam_node_exe",
-        namespace="/",
+        namespace="",
         parameters=[mechaship_camera_parameter],
         # debug
         output="screen",
@@ -85,7 +85,7 @@ def generate_launch_description():
         name="iahrs_ros2_driver",
         namespace="",
         parameters=[mechaship_imu_parameter],
-        remappings=[("imu/data", "imu")],
+        remappings=[("imu/data", "imu"), ("imu/mag", "mag")],
         # debug
         output="screen",
         emulate_tty=True,
@@ -107,7 +107,7 @@ def generate_launch_description():
         executable="rf2o_laser_odometry_node",
         package="rf2o_laser_odometry",
         name="rf2o_laser_odometry",
-        namespace="/",
+        namespace="",
         parameters=[
             {
                 "laser_scan_topic": "scan",

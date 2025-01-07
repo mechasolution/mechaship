@@ -8,6 +8,7 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():
+    # YOLOv8 객체 인식 시각화
     yolov8_params = LaunchConfiguration(
         "yolov8_params",
         default=os.path.join(
@@ -22,12 +23,14 @@ def generate_launch_description():
     )
 
     yolov8_visualize_node = Node(
-        package="mechaship_yolov8",
         executable="visualize_node",
+        package="mechaship_yolov8",
         name="visualize_node",
+        namespace="",
+        parameters=[yolov8_params],
+        # debug
         output="screen",
         emulate_tty=True,
-        parameters=[yolov8_params],
     )
 
     return LaunchDescription([yolov8_params_arg, yolov8_visualize_node])

@@ -9,7 +9,7 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():
-    # get use_sim_time
+    # 시뮬레이션 시간(가제보) 사용 여부 가져오기
     param_stdout = subprocess.run(
         ["ros2", "param", "get", "/robot_state_publisher", "use_sim_time"],
         capture_output=True,
@@ -31,7 +31,7 @@ def generate_launch_description():
         executable="async_slam_toolbox_node",
         package="slam_toolbox",
         name="slam_toolbox",
-        namespace="/",
+        namespace="",
         parameters=[slam_params_file, {"use_sim_time": use_sim_time}],
         # debug
         output="screen",
