@@ -4,12 +4,12 @@ usb_cam_node_exe:
     framerate: 30.0
     io_method: mmap
     frame_id: camera_frame
-    pixel_format: yuyv
+    pixel_format: mjpeg2rgb
     av_device_format: YUV422P
     image_width: 640
     image_height: 480
     camera_name: camera
-    camera_info_url: ""
+    camera_info_url: "package://usb_cam/config/camera_info.yaml"
     brightness: -1 # 0-255, -1 "leave alone"
     contrast: -1 # 0-255, -1 "leave alone"
     saturation: -1 # 0-255, -1 "leave alone"
