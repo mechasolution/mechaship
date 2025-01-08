@@ -143,7 +143,7 @@ def generate_launch_description():
                 "freq": 10.0,
             }
         ],
-        arguments=["--ros-args", "--log-level", "warning"],
+        arguments=["--ros-args", "--log-level", "warn"],
         # debug
         output="screen",
         emulate_tty=True,
