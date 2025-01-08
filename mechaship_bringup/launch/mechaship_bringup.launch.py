@@ -33,6 +33,30 @@ def generate_launch_description():
         emulate_tty=True,
     )
 
+    # GPS 드라이버
+    mechaship_gps_parameter = LaunchConfiguration(
+        "mechaship_gps_parameter",
+        default=os.path.join(pkg_share_dir_param, "mechaship_gps.yaml"),
+    )
+    gps_driver_launch_arg = DeclareLaunchArgument(
+        "mechaship_gps_parameter", default_value=mechaship_gps_parameter
+    )
+    gps_driver_node = Node(
+        executable="ublox_gps_node",
+        package="ublox_gps",
+        name="ublox_gps_node",
+        namespace="",
+        parameters=[mechaship_gps_parameter],
+        remappings=[
+            ("diagnostics", "gps/diagnostics"),
+            ("fix", "gps/fix"),
+            ("fix_velocity", "gps/fix_velocity"),
+        ],
+        # debug
+        output="screen",
+        emulate_tty=True,
+    )
+
     # USB 카메라 드라이버
     mechaship_camera_parameter = LaunchConfiguration(
         "mechaship_camera_parameter",
@@ -128,6 +152,8 @@ def generate_launch_description():
         [
             actuator_cfg_launch_arg,
             actuator_cfg_node,
+            gps_driver_launch_arg,
+            gps_driver_node,
             usb_camera_launch_arg,
             usb_camera_node,
             lidar_driver_launch_arg,
