@@ -111,13 +111,13 @@ class TeleopJoystick(Node):
         self.__rgbw_msg.blue = 0
         self.__rgbw_msg.white = 0
 
-        if data.buttons[3] == 1:
+        if data.buttons[0] == 1:
             self.__rgbw_msg.red = self.__RGBW_BRIGHTNESS
         if data.buttons[1] == 1:
             self.__rgbw_msg.green = self.__RGBW_BRIGHTNESS
-        if data.buttons[0] == 1:
-            self.__rgbw_msg.blue = self.__RGBW_BRIGHTNESS
         if data.buttons[2] == 1:
+            self.__rgbw_msg.blue = self.__RGBW_BRIGHTNESS
+        if data.buttons[3] == 1:
             self.__rgbw_msg.white = self.__RGBW_BRIGHTNESS
 
         if (
