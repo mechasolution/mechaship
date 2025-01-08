@@ -63,6 +63,10 @@ class ActuatorEnableNode(Node):
         msg.thruster_pulse_0_percentage = self.__thruster_pulse_0_percentage.value
         msg.thruster_pulse_100_percentage = self.__thruster_pulse_100_percentage.value
 
+        self.__actuator_enable_client_hd.call_async(msg)
+        self.__actuator_enable_client_hd.call_async(msg)
+        self.__actuator_enable_client_hd.call_async(msg)
+        self.__actuator_enable_client_hd.call_async(msg)
         future = self.__actuator_enable_client_hd.call_async(msg)
         rclpy.spin_until_future_complete(self, future)
         self.get_logger().info("enable done")
@@ -70,6 +74,10 @@ class ActuatorEnableNode(Node):
     def shutdown(self):
         msg = ActuatorDisable.Request()
 
+        self.__actuator_disable_client_hd.call_async(msg)
+        self.__actuator_disable_client_hd.call_async(msg)
+        self.__actuator_disable_client_hd.call_async(msg)
+        self.__actuator_disable_client_hd.call_async(msg)
         future = self.__actuator_disable_client_hd.call_async(msg)
         rclpy.spin_until_future_complete(self, future)
 
