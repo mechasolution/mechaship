@@ -55,6 +55,12 @@ class TeleopJoystick(Node):
         )
 
         self.__pub_timer_hd = self.create_timer(0.1, self.__pub_timer_callback)
+        self.__new_data_check_timer_hd = self.create_timer(
+            1, self.__new_data_check_timer_callback
+        )
+
+        self.__is_new_data = False
+        self.__is_pub_active = False
 
         self.__key_degree_msg = Float32()
         self.__key_degree_msg.data = self.__KEY_CENTER_DEGREE
@@ -74,6 +80,7 @@ class TeleopJoystick(Node):
         self.__tone_last = 0
 
     def __joystick_subscriber_callback(self, data: Joy):
+        self.__is_new_data = True
         axis_value = data.axes[3] * -1  # 방향 반전
 
         if axis_value < 0:
@@ -132,12 +139,24 @@ class TeleopJoystick(Node):
             self.__tone_last = 0
 
     def __pub_timer_callback(self):
+        if self.__is_pub_active is not True:
+            return
+
         self.get_logger().info(
             f"Key: {self.__key_degree_msg.data:5.1f}°\tThrottle: {self.__throttle_percentage_msg.data:5.1f}%"
         )
 
         self.__key_publisher_hd.publish(self.__key_degree_msg)
         self.__throttle_publisher_hd.publish(self.__throttle_percentage_msg)
+
+    def __new_data_check_timer_callback(self):
+        if self.__is_new_data is True:
+            self.__is_pub_active = True
+        else:
+            self.get_logger().warning("JoyStick Not Connected!!")
+            self.__is_pub_active = False
+
+        self.__is_new_data = False
 
 
 def main(args=None):
