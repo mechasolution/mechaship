@@ -143,7 +143,7 @@ class TeleopJoystick(Node):
             return
 
         self.get_logger().info(
-            f"Key: {self.__key_degree_msg.data:5.1f}°\tThrottle: {self.__throttle_percentage_msg.data:5.1f}%"
+            f"Throttle: {self.__throttle_percentage_msg.data:5.1f}% \t Key: {self.__key_degree_msg.data:5.1f}°"
         )
 
         self.__key_publisher_hd.publish(self.__key_degree_msg)
