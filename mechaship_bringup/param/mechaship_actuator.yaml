@@ -1,7 +1,7 @@
 actuator_cfg_node:
   ros__parameters:
-    key_min_degree: 60.0
-    key_max_degree: 120.0
+    key_min_degree: 30.0
+    key_max_degree: 150.0
 
     key_pulse_0_degree: 500
     key_pulse_180_degree: 2500
