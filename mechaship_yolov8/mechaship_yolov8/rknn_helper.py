@@ -143,3 +143,22 @@ class RKNNHelper:
         scores = np.concatenate(nscores)
 
         return boxes, classes, scores
+
+    def post_process2(self, input_data):
+        boxes, classes, scores = [], [], []
+        outputs = np.squeeze(input_data)  # [13, 8400]
+        for i in range(outputs.shape[1]):
+            box = outputs[:4, i]
+            confidence = outputs[4, i]
+            class_probs = outputs[5:, i]
+
+            class_id = np.argmax(class_probs)
+            class_score = class_probs[class_id]
+
+            if confidence * class_score > self.threshold:  # 필터링 조건
+                boxes.append(box)
+                classes.append(class_id)
+                scores.append(confidence * class_score)
+
+        # 최종 결과 반환
+        return np.array(boxes), np.array(classes), np.array(scores)

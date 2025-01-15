@@ -241,7 +241,11 @@ class DetectNode(LifecycleNode):
             outputs = self.rknn_lite.inference(inputs=[input_image])
             finish_time = time.time()
 
-            boxes, classes, scores = self.rknn_helper.post_process(outputs)
+            if len(outputs) == 1:  # [1, 1, 13, 8400]
+                # print(np.array(outputs).shape)
+                boxes, classes, scores = self.rknn_helper.post_process2(outputs)
+            else:  # [[1,64,80,80],[1,80,80,80],[1,1,80,80]...[1,64,20,20],[1,80,20,20],[1,1,20,20]]
+                boxes, classes, scores = self.rknn_helper.post_process(outputs)
 
             # 탐지된 객체가 없을 경우 종료
             if boxes is None or classes is None or scores is None:
