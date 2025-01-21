@@ -74,7 +74,7 @@ def constrain(input_vel, low_bound, high_bound):
 
 
 def check_thruster_limit(vel):
-    return constrain(vel, 0.0, 100.0)
+    return constrain(vel, -100.0, 100.0)
 
 
 def check_key_limit(vel):

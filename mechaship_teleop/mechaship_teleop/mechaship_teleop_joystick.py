@@ -94,16 +94,13 @@ class TeleopJoystick(Node):
             degree, self.__KEY_MIN_DEGREE, self.__KEY_MAX_DEGREE
         )
 
-        if data.axes[1] < 0:
+        self.__throttle_percentage_msg.data = constrain(
+            data.axes[1] * self.__THROTTLE_MAX_PERCENTAGE,
+            -self.__THROTTLE_MAX_PERCENTAGE,
+            self.__THROTTLE_MAX_PERCENTAGE,
+        )
+        if self.__throttle_percentage_msg.data == 0.0:
             self.__throttle_percentage_msg.data = 0.0
-        else:
-            self.__throttle_percentage_msg.data = abs(
-                constrain(
-                    data.axes[1] * self.__THROTTLE_MAX_PERCENTAGE,
-                    self.__THROTTLE_MIN_PERCENTAGE,
-                    self.__THROTTLE_MAX_PERCENTAGE,
-                )
-            )
 
         # RGBW LED
         self.__rgbw_msg.red = 0
@@ -143,7 +140,7 @@ class TeleopJoystick(Node):
             return
 
         self.get_logger().info(
-            f"Throttle: {self.__throttle_percentage_msg.data:5.1f}% \t Key: {self.__key_degree_msg.data:5.1f}°"
+            f"Throttle: {self.__throttle_percentage_msg.data:+5.1f}% \t Key: {self.__key_degree_msg.data:5.1f}°"
         )
 
         self.__key_publisher_hd.publish(self.__key_degree_msg)
