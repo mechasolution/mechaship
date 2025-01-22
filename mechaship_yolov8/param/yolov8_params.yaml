@@ -2,10 +2,10 @@
   ros__parameters:
     image_topic: "/image_raw/compressed"
     model_params:
-      model: "yolov8.rknn"
+      model: "best.pt"
       img_size: 640
-      conf: 0.5  # Confidence threshold
-      iou: 0.8   # IOU threshold
+      conf: 0.5 # Confidence threshold
+      iou: 0.8 # IOU threshold
       enable: True
 
 /visualize_node:

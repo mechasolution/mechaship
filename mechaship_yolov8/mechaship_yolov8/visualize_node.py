@@ -6,10 +6,6 @@ from rclpy.qos import qos_profile_sensor_data
 from sensor_msgs.msg import CompressedImage, Image
 from vision_msgs.msg import Detection2D, Detection2DArray, ObjectHypothesisWithPose
 
-# fmt: off
-CLASSES = ['person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus', 'train', 'truck', 'boat', 'traffic light', 'fire hydrant', 'stop sign', 'parking meter', 'bench', 'bird', 'cat', 'dog', 'horse', 'sheep', 'cow', 'elephant', 'bear', 'zebra', 'giraffe', 'backpack', 'umbrella', 'handbag', 'tie', 'suitcase', 'frisbee', 'skis','snowboard', 'sports ball', 'kite', 'baseball bat', 'baseball glove', 'skateboard', 'surfboard', 'tennis racket', 'bottle', 'wine glass', 'cup', 'fork', 'knife', 'spoon', 'bowl', 'banana', 'apple', 'sandwich', 'orange', 'broccoli', 'carrot', 'hot dog', 'pizza', 'donut', 'cake', 'chair', 'couch', 'potted plant', 'bed', 'dining table', 'toilet', 'tv', 'laptop', 'mouse', 'remote', 'keyboard', 'cell phone', 'microwave', 'oven', 'toaster', 'sink', 'refrigerator', 'book', 'clock', 'vase', 'scissors', 'teddy bear', 'hair drier', 'toothbrush']
-# fmt: on
-
 
 class VisualizeNode(Node):
     FONT = cv2.FONT_HERSHEY_SIMPLEX
@@ -97,9 +93,7 @@ class VisualizeNode(Node):
 
             hypo: ObjectHypothesisWithPose  # type hint
             hypo = detection.results[0]
-            label = "{} {:.3f}".format(
-                CLASSES[int(hypo.hypothesis.class_id)], hypo.hypothesis.score
-            )
+            label = "{} {:.3f}".format(detection.id, hypo.hypothesis.score)
             pos = (min_pt[0] + self.THICKNESS, max_pt[1] - self.THICKNESS - 1)
             cv2.putText(
                 origin_image, label, pos, self.FONT, 0.75, self.COLOR, 1, cv2.LINE_AA
