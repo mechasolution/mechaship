@@ -47,7 +47,7 @@ class DetectNode(LifecycleNode):
         )
 
         self.model = (
-            self.get_parameter_or("model_params.model", "yolov8.pt")
+            self.get_parameter_or("model_params.model", "yolov8n.pt")
             .get_parameter_value()
             .string_value
         )
