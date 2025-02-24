@@ -1,23 +1,25 @@
 import time
 from os.path import join
 
-# OpenCV
-from cv_bridge import CvBridge
+import numpy as np
 
 # ROS 2
 import rclpy
 from ament_index_python.packages import get_package_share_directory
+from cv_bridge import CvBridge
 from rclpy.lifecycle import LifecycleNode, LifecycleState, TransitionCallbackReturn
 from rclpy.lifecycle.publisher import LifecyclePublisher
 from rclpy.qos import qos_profile_sensor_data
+from sensor_msgs.msg import CompressedImage
 
 # ROS 2 Messages and Services
-from sensor_msgs.msg import CompressedImage
 from std_msgs.msg import Bool
 from vision_msgs.msg import Detection2D, Detection2DArray, ObjectHypothesisWithPose
 
-# YOLO
-from ultralytics import YOLO
+# RKNN
+from rknnlite.api import RKNNLite
+
+from .rknn_helper import RKNNHelper
 
 DEBUG = True
 
@@ -46,8 +48,14 @@ class DetectNode(LifecycleNode):
             .string_value
         )
 
-        self.model = (
-            self.get_parameter_or("model_params.model", "yolov8n.pt")
+        self.rknn_model = (
+            self.get_parameter_or("model_params.rknn_model", "yolov8.rknn")
+            .get_parameter_value()
+            .string_value
+        )
+
+        self.label = (
+            self.get_parameter_or("model_params.label", "labels.txt")
             .get_parameter_value()
             .string_value
         )
@@ -58,16 +66,22 @@ class DetectNode(LifecycleNode):
             .integer_value
         )
 
-        self.conf = (
+        _conf = (
             self.get_parameter_or("model_params.conf", 0.5)
             .get_parameter_value()
             .double_value
         )
 
-        self.iou = (
+        _iou = (
             self.get_parameter_or("model_params.iou", 0.8)
             .get_parameter_value()
             .double_value
+        )
+
+        _fps = (
+            self.get_parameter_or("model_params.fps", 10)
+            .get_parameter_value()
+            .integer_value
         )
 
         self.enable = (
@@ -77,11 +91,16 @@ class DetectNode(LifecycleNode):
         )
 
         self.log_debug(f"image_topic : {self.image_topic}")
-        self.log_debug(f"model : {self.model}")
+        self.log_debug(f"rknn_model : {self.rknn_model}")
+        self.log_debug(f"label : {self.label}")
         self.log_debug(f"img_size : {self.img_size}")
-        self.log_debug(f"conf : {self.conf}")
-        self.log_debug(f"iou : {self.iou}")
+        self.log_debug(f"conf : {_conf}")
+        self.log_debug(f"iou : {_iou}")
+        self.log_debug(f"fps : {_fps}")
         self.log_debug(f"enable : {self.enable}")
+
+        # RKNN 핼퍼 불러오기 (rknn_helper.py)
+        self.rknn_helper = RKNNHelper(_conf, _iou, self.img_size)
 
         # 객체 인식 결과 Publisher 생성
         self.detection_publisher: LifecyclePublisher = self.create_lifecycle_publisher(
@@ -100,7 +119,7 @@ class DetectNode(LifecycleNode):
         self.br = CvBridge()
 
         self.compressed_image = CompressedImage()
-        self.timer = self.create_timer(1, self.timer_callback)
+        self.timer = self.create_timer(1 / _fps, self.timer_callback)
 
         # 모든 요소(publisher, subscriber 등) 상태 전환 >> <on_configure>
         super().on_configure(state)
@@ -117,13 +136,32 @@ class DetectNode(LifecycleNode):
     def on_activate(self, state: LifecycleState) -> TransitionCallbackReturn:
         self.log_debug(f"Activating {self.get_name()}")
 
-        # YOLO 모델 불러오기
-        self.log_debug("--> Load model")
+        # RKNN Lite 불러오기
+        self.model = RKNNLite()
+
+        # RKNN model 불러오기
+        self.log_debug("--> Load RKNN model")
         model_full_path = join(
-            get_package_share_directory(__package__), "model", self.model
+            get_package_share_directory(__package__), "model", self.rknn_model
         )
-        self.yolo = YOLO(model_full_path, task="detect")
+        ret = self.model.load_rknn(model_full_path)
+        if ret != 0:  # 실패할 경우 예외 발생
+            raise RuntimeError("Load RKNN model failed!")
         self.log_debug("done")
+
+        # 런타임 환경 초기화
+        self.log_debug("--> Init runtime environment")
+        ret = self.model.init_runtime(core_mask=RKNNLite.NPU_CORE_0)
+        if ret != 0:  # 실패할 경우 예외 발생
+            raise RuntimeError("Init runtime environment failed!")
+        self.log_debug("done")
+
+        # 라벨 파일을 읽어 리스트로 변환
+        label_full_path = join(
+            get_package_share_directory(__package__), "model", self.label
+        )
+        with open(label_full_path, "r") as f:
+            self.classes = [line.strip() for line in f.readlines()]
 
         # 이미지 Subscription 생성
         self.image_subscription = self.create_subscription(
@@ -143,11 +181,12 @@ class DetectNode(LifecycleNode):
     def on_deactivate(self, state: LifecycleState) -> TransitionCallbackReturn:
         self.log_debug(f"Deactivating {self.get_name()}")
 
+        # RKNN 반환하기
+        self.model.release()
+
         # 이미지 Subscription 반환하기
         self.destroy_subscription(self.image_subscription)
         self.image_subscription = None
-
-        del self.yolo
 
         # 모든 요소(publisher, subscriber 등) 상태 전환 >> <on_deactivate>
         super().on_deactivate(state)
@@ -196,24 +235,29 @@ class DetectNode(LifecycleNode):
             self.get_logger().warn("Publisher is not activated")
             return
 
-        if self.compressed_image.data == []:
+        if not self.compressed_image.data:
             return
 
         # compressed image를 OpenCV 이미지로 변환
         origin_image = self.br.compressed_imgmsg_to_cv2(self.compressed_image)
 
+        # 비율에 맞춰 이미지 리사이즈
+        padded_image = self.rknn_helper.resize_with_padding(origin_image)
+
+        # RKNN에 사용할 수 있는 구조로 변경 (4dim)
+        input_image = np.expand_dims(padded_image, 0)
+
         # 객체 탐지 실행
         self.log_debug("--> Running model")
         start_time = time.time()
-        results = self.yolo.predict(
-            source=origin_image,
-            stream=False,
-            conf=self.conf,
-            iou=self.iou,
-            verbose=False,
-            visualize=False,
-        )
+        outputs = self.model.inference(inputs=[input_image])
         finish_time = time.time()
+
+        boxes, classes, scores = self.rknn_helper.post_process(outputs)
+
+        # 탐지된 객체가 없을 경우 종료
+        if boxes is None or classes is None or scores is None:
+            return
 
         self.log_debug(f"detect Time: {(finish_time - start_time)}")
 
@@ -221,27 +265,29 @@ class DetectNode(LifecycleNode):
         detections_msg = Detection2DArray()
         detections_msg.header = self.compressed_image.header
 
-        for box_data in results[0].boxes:
+        for box, class_id, score in zip(boxes, classes, scores):
             detection = Detection2D()
             detection.header = self.compressed_image.header
 
             hypothesis = ObjectHypothesisWithPose()
-            hypothesis.hypothesis.class_id = str(int(box_data.cls))
-            hypothesis.hypothesis.score = float(box_data.conf)
+            hypothesis.hypothesis.class_id = str(int(class_id))
+            hypothesis.hypothesis.score = float(score)
             detection.results = [hypothesis]
 
-            box = box_data.xywh[0]
-            detection.bbox.center.position.x = float(box[0])
-            detection.bbox.center.position.y = float(box[1])
-            detection.bbox.size_x = float(box[2])
-            detection.bbox.size_y = float(box[3])
+            x1, y1, x2, y2 = box
+            x = int((x1 + x2) / 2)
+            y = int((y1 + y2) / 2)
+            w = int(x2 - x1)
+            h = int(y2 - y1)
 
-            detection.id = self.yolo.names[int(box_data.cls)]
+            detection.bbox.center.position.x = float(x)
+            detection.bbox.center.position.y = float(y)
+            detection.bbox.size_x = float(w)
+            detection.bbox.size_y = float(h)
+
+            detection.id = str(self.classes[int(class_id)])
 
             detections_msg.detections.append(detection)
-
-        if not self.detection_publisher.is_activated:
-            self.get_logger().warn("Publisher is not activated")
 
         # Detection2DArray Publish
         self.detection_publisher.publish(detections_msg)
