@@ -1,12 +1,7 @@
 import rclpy
+from mechaship_interfaces.srv import ActuatorDisable, ActuatorEnable
 from rclpy.node import Node
 from rclpy.parameter import Parameter
-from rclpy.exceptions import ParameterNotDeclaredException
-
-from std_msgs.msg import Bool
-from std_msgs.msg import UInt32
-from mechaship_interfaces.srv import ActuatorEnable
-from mechaship_interfaces.srv import ActuatorDisable
 
 
 class ActuatorEnableNode(Node):
@@ -83,20 +78,20 @@ class ActuatorEnableNode(Node):
 
 
 def main(args=None):
-    # enable actuator
     rclpy.init(args=args)
-    _node = ActuatorEnableNode()
+    node = ActuatorEnableNode()
 
     try:
-        rclpy.spin(_node)
+        rclpy.spin(node)
 
     except KeyboardInterrupt:
-        pass
+        node.get_logger().info("Keyboard Interrupt (SIGINT)")
+
+    except Exception as e:
+        node.get_logger().error(f"Exception: {e}")
 
     finally:
-        _node.shutdown()
-
-        _node.destroy_node()
+        node.destroy_node()
         rclpy.try_shutdown()
 
 

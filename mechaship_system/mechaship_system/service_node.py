@@ -1,15 +1,12 @@
 import os
-import subprocess
 import re
-import psutil
+import subprocess
 
+import psutil
 import rclpy
 from rclpy.node import Node
 from rclpy.parameter import Parameter
-from rclpy.exceptions import ParameterNotDeclaredException
-
-from std_msgs.msg import Bool
-from std_msgs.msg import UInt32
+from std_msgs.msg import Bool, UInt32
 
 
 class SystemNode(Node):
@@ -94,17 +91,20 @@ class SystemNode(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-
-    system_node = SystemNode()
+    node = SystemNode()
 
     try:
-        rclpy.spin(system_node)
+        rclpy.spin(node)
 
     except KeyboardInterrupt:
-        return
+        node.get_logger().info("Keyboard Interrupt (SIGINT)")
 
-    system_node.destroy_node()
-    rclpy.shutdown()
+    except Exception as e:
+        node.get_logger().error(f"Exception: {e}")
+
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
 
 
 if __name__ == "__main__":

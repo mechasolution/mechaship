@@ -1,12 +1,11 @@
 import os
 import select
 import sys
+import termios
+import tty
 
 import rclpy
 from std_msgs.msg import Float32
-
-import termios
-import tty
 
 THROTTLE_STEP_SIZE = 5.0
 KEY_STEP_SIZE = 5.0

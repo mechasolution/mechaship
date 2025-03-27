@@ -1,13 +1,8 @@
-import time
-
 import rclpy
+from mechaship_interfaces.msg import RgbwLedColor, ToneTopic
 from rclpy.node import Node
-from rclpy.parameter import Parameter
-from rclpy.exceptions import ParameterNotDeclaredException
-
-from std_msgs.msg import Float32
 from sensor_msgs.msg import Joy
-from mechaship_interfaces.msg import ToneTopic, RgbwLedColor
+from std_msgs.msg import Float32
 
 
 def constrain(input_vel, low_bound, high_bound):
@@ -21,7 +16,7 @@ def constrain(input_vel, low_bound, high_bound):
     return input_vel
 
 
-class TeleopJoystick(Node):
+class TeleopJoystickNode(Node):
     __KEY_MIN_DEGREE = 60.0
     __KEY_CENTER_DEGREE = 90.0
     __KEY_MAX_DEGREE = 120.0
@@ -158,17 +153,19 @@ class TeleopJoystick(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-
-    teleop_joystick = TeleopJoystick()
+    node = TeleopJoystickNode()
 
     try:
-        rclpy.spin(teleop_joystick)
+        rclpy.spin(node)
 
     except KeyboardInterrupt:
-        pass
+        node.get_logger().info("Keyboard Interrupt (SIGINT)")
+
+    except Exception as e:
+        node.get_logger().error(f"Exception: {e}")
 
     finally:
-        teleop_joystick.destroy_node()
+        node.destroy_node()
         rclpy.try_shutdown()
 
 
