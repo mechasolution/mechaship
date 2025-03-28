@@ -32,7 +32,7 @@ setup(
     maintainer="Mechasolution",
     maintainer_email="techms5499@gmail.com",
     description="ROS 2 Package for YOLOv8 Detection and Visualization",
-    license="Apache 2.0",
+    license="Apache-2.0",
     tests_require=["pytest"],
     entry_points={
         "console_scripts": [

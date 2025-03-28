@@ -5,13 +5,21 @@
   <version>1.0.0</version>
   <description>MechaShip background package</description>
   <maintainer email="techms5499@gmail.com">Mechasolution</maintainer>
-  <license>Apache 2.0</license>
+  <license>Apache-2.0</license>
   <author email="max@mechasolution.com">Max Cha</author>
 
-  <exec_depend>ros2launch</exec_depend>
+  <!-- Buildtool Dependency -->
+  <buildtool_depend>ament_cmake_python</buildtool_depend>
+
+  <!-- Launch dependencies -->
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>ament_index_python</exec_depend>
+
+  <!-- Other ROS package dependencies -->
   <exec_depend>rclpy</exec_depend>
   <exec_depend>std_msgs</exec_depend>
-  <exec_depend>micro_ros_agent</exec_depend>
+  <exec_depend>mechaship_interfaces</exec_depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>

@@ -19,18 +19,15 @@ def generate_launch_description():
     pkg_share_dir_param = os.path.join(
         get_package_share_directory("mechaship_system"), "param"
     )
+
     service_params_path = os.path.join(pkg_share_dir_param, "service.yaml")
-    service_params = LaunchConfiguration(
-        "service_params",
-        default=os.path.join(
-            get_package_share_directory("mechaship_system"),
-            "param",
-            "service.yaml",
-        ),
+    mechaship_service_parameter = LaunchConfiguration(
+        "mechaship_service_parameter",
+        default=os.path.join(pkg_share_dir_param, "service.yaml"),
     )
-    service_params_arg = DeclareLaunchArgument(
-        "service_params",
-        default_value=service_params,
+    mechaship_service_launch_arg = DeclareLaunchArgument(
+        "mechaship_service_parameter",
+        default_value=mechaship_service_parameter,
     )
 
     params = load_param_from_yaml(service_params_path)
@@ -42,27 +39,31 @@ def generate_launch_description():
 
     # Micro-ROS Agent
     micro_ros_agent_node = Node(
-        package="micro_ros_agent",
         executable="micro_ros_agent",
+        package="micro_ros_agent",
         name="micro_ros_agent",
         namespace="",
         arguments=["serial", "--dev", device_name],
+        # debug
+        output="screen",
         emulate_tty=True,
     )
 
-    service_node = Node(
-        package="mechaship_system",
+    mechaship_service_node = Node(
         executable="service_node",
+        package="mechaship_system",
         name="service_node",
         namespace="",
+        parameters=[mechaship_service_parameter],
+        # debug
+        output="screen",
         emulate_tty=True,
-        parameters=[service_params],
     )
 
     return LaunchDescription(
         [
             micro_ros_agent_node,
-            service_params_arg,
-            service_node,
+            mechaship_service_launch_arg,
+            mechaship_service_node,
         ]
     )

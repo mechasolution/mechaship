@@ -5,17 +5,23 @@
   <version>1.0.0</version>
   <description>ROS 2 Package for YOLOv8 Detection and Visualization</description>
   <maintainer email="techms5499@gmail.com">mechasolution</maintainer>
-  <license>Apache 2.0</license>
+  <license>Apache-2.0</license>
   <author email="sydney@mechasolution.com">Sydney Kim</author>
 
-  <exec_depend>ros2launch</exec_depend>
+  <!-- Buildtool Dependency -->
+  <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <depend>rclpy</depend>
-  <depend>cv_bridge</depend>
+  <!-- Launch dependencies -->
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>ament_index_python</exec_depend>
 
-  <depend>sensor_msgs</depend>
-  <depend>vision_msgs</depend>
-  <depend>std_srvs</depend>
+  <!-- Other ROS package dependencies -->
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>vision_msgs</exec_depend>
+  <exec_depend>cv_bridge</exec_depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>

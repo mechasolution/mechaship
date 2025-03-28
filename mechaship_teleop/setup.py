@@ -24,7 +24,7 @@ setup(
     maintainer="Mechasolution",
     maintainer_email="techms5499@gmail.com",
     description="Teleoperation node for MechaShip",
-    license="Apache 2.0",
+    license="Apache-2.0",
     tests_require=["pytest"],
     entry_points={
         "console_scripts": [
