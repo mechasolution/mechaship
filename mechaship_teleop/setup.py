@@ -23,7 +23,7 @@ setup(
     author_email="max@mechasolution.com",
     maintainer="Mechasolution",
     maintainer_email="techms5499@gmail.com",
-    description="Teleoperation node for MechaShip",
+    description="ROS 2 package for MechaShip teleoperation.",
     license="Apache-2.0",
     tests_require=["pytest"],
     entry_points={

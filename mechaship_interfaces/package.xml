@@ -3,7 +3,7 @@
 <package format="3">
   <name>mechaship_interfaces</name>
   <version>1.0.0</version>
-  <description>mechaship service types</description>
+  <description>ROS 2 interface definitions for MechaShip.</description>
   <maintainer email="techms5499@gmail.com">Mechasolution</maintainer>
   <license>Apache-2.0</license>
   <author email="max@mechasolution.com">Max Cha</author>

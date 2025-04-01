@@ -3,7 +3,7 @@
 <package format="3">
   <name>mechaship_bringup</name>
   <version>1.0.0</version>
-  <description>ROS 2 launch scripts for starting the MechaShip</description>
+  <description>ROS 2 launch files to initialize and run Mechaship.</description>
   <maintainer email="techms5499@gmail.com">Mechasolution</maintainer>
   <license>Apache-2.0</license>
   <author email="max@mechasolution.com">Max Cha</author>

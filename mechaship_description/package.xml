@@ -3,7 +3,7 @@
 <package format="3">
   <name>mechaship_description</name>
   <version>1.0.0</version>
-  <description>3D models of the MechaShip for simulation and visualization</description>
+  <description>3D models of MechaShip for simulation and visualization.</description>
   <maintainer email="techms5499@gmail.com">Mechasolution</maintainer>
   <license>Apache-2.0</license>
   <author email="max@mechasolution.com">Max Cha</author>

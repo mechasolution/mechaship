@@ -31,7 +31,7 @@ setup(
     author_email="sydney@mechasolution.com",
     maintainer="Mechasolution",
     maintainer_email="techms5499@gmail.com",
-    description="ROS 2 Package for YOLOv8 Detection and Visualization",
+    description="ROS 2 package for YOLOv8 object detection and visualization.",
     license="Apache-2.0",
     tests_require=["pytest"],
     entry_points={
