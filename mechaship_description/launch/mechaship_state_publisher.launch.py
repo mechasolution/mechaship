@@ -8,15 +8,14 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():
-    # 시뮬레이션 시간(가제보) 사용 여부
+    # 시뮬레이션 시간(Gazebo) 사용 여부
     use_sim_time = LaunchConfiguration("use_sim_time", default="false")
 
-    # model.sdf 파일 경로
+    # sdf 파일 경로
     sdf_path = os.path.join(
-        "sdf_path",
         get_package_share_directory("mechaship_description"),
         "models",
-        "mechaship",
+        os.environ.get("MODEL_NAME", "mechaship"),
         "model.sdf",
     )
 
