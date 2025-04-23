@@ -42,6 +42,7 @@ class DetectNode(LifecycleNode):
         self.log_debug(f"Configuring {self.get_name()}")
 
         # 파라미터 가져오기
+        # FIXME: param 없을 때 str 바로 반환되서 get_parameter_value 등 안먹음. Parameter로 감싸기
         self.image_topic = (
             self.get_parameter_or("image_topic", "/image_raw/compressed")
             .get_parameter_value()
