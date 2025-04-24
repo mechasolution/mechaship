@@ -10,3 +10,10 @@
 	path = ydlidar_ros2_driver
 	url = https://github.com/YDLIDAR/ydlidar_ros2_driver.git
 	branch = humble
+[submodule "ntrip_client"]
+	path = ntrip_client
+	url = https://github.com/maax-cha/ntrip_client
+	branch = ros2
+[submodule "wtrtk_ros2_driver"]
+	path = wtrtk_ros2_driver
+	url = https://github.com/mechasolution/wtrtk_ros2_driver
