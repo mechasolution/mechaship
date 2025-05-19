@@ -9,17 +9,17 @@ from ament_index_python.packages import get_package_share_directory
 from cv_bridge import CvBridge
 from rclpy.lifecycle import LifecycleNode, LifecycleState, TransitionCallbackReturn
 from rclpy.lifecycle.publisher import LifecyclePublisher
+from rclpy.parameter import Parameter
 from rclpy.qos import qos_profile_sensor_data
-from sensor_msgs.msg import CompressedImage
-
-# ROS 2 Messages and Services
-from std_msgs.msg import Bool
-from vision_msgs.msg import Detection2D, Detection2DArray, ObjectHypothesisWithPose
 
 # RKNN
+from rknn_helper import RKNNHelper
 from rknnlite.api import RKNNLite
 
-from .rknn_helper import RKNNHelper
+# ROS 2 Messages and Services
+from sensor_msgs.msg import CompressedImage
+from std_msgs.msg import Bool
+from vision_msgs.msg import Detection2D, Detection2DArray, ObjectHypothesisWithPose
 
 DEBUG = True
 
@@ -42,51 +42,78 @@ class DetectNode(LifecycleNode):
         self.log_debug(f"Configuring {self.get_name()}")
 
         # 파라미터 가져오기
-        # FIXME: param 없을 때 str 바로 반환되서 get_parameter_value 등 안먹음. Parameter로 감싸기
         self.image_topic = (
-            self.get_parameter_or("image_topic", "/image_raw/compressed")
+            self.get_parameter_or(
+                "image_topic",
+                Parameter(
+                    "image_topic", Parameter.Type.STRING, "/image_raw/compressed"
+                ),
+            )
             .get_parameter_value()
             .string_value
         )
 
         self.rknn_model = (
-            self.get_parameter_or("model_params.rknn_model", "yolov8.rknn")
+            self.get_parameter_or(
+                "model_params.rknn_model",
+                Parameter(
+                    "model_params.rknn_model", Parameter.Type.STRING, "yolov8.rknn"
+                ),
+            )
             .get_parameter_value()
             .string_value
         )
 
         self.label = (
-            self.get_parameter_or("model_params.label", "labels.txt")
+            self.get_parameter_or(
+                "model_params.label",
+                Parameter("model_params.label", Parameter.Type.STRING, "labels.txt"),
+            )
             .get_parameter_value()
             .string_value
         )
 
         self.img_size = (
-            self.get_parameter_or("model_params.img_size", 640)
+            self.get_parameter_or(
+                "model_params.img_size",
+                Parameter("model_params.img_size", Parameter.Type.INTEGER, 640),
+            )
             .get_parameter_value()
             .integer_value
         )
 
         _conf = (
-            self.get_parameter_or("model_params.conf", 0.5)
+            self.get_parameter_or(
+                "model_params.conf",
+                Parameter("model_params.conf", Parameter.Type.DOUBLE, 0.5),
+            )
             .get_parameter_value()
             .double_value
         )
 
         _iou = (
-            self.get_parameter_or("model_params.iou", 0.8)
+            self.get_parameter_or(
+                "model_params.iou",
+                Parameter("model_params.iou", Parameter.Type.DOUBLE, 0.8),
+            )
             .get_parameter_value()
             .double_value
         )
 
         _fps = (
-            self.get_parameter_or("model_params.fps", 10)
+            self.get_parameter_or(
+                "model_params.fps",
+                Parameter("model_params.fps", Parameter.Type.INTEGER, 10),
+            )
             .get_parameter_value()
             .integer_value
         )
 
         self.enable = (
-            self.get_parameter_or("model_params.enable", True)
+            self.get_parameter_or(
+                "model_params.enable",
+                Parameter("model_params.enable", Parameter.Type.BOOL, True),
+            )
             .get_parameter_value()
             .bool_value
         )

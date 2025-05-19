@@ -11,11 +11,18 @@ from std_msgs.msg import Bool, UInt32
 
 class SystemNode(Node):
     def __init__(self) -> None:
-        super().__init__("system_service_node")
+        super().__init__(
+            "system_service_node", automatically_declare_parameters_from_overrides=True
+        )
 
-        self.declare_parameter("auto_off", False)
-        self.__auto_off = self.get_parameter_or(
-            "auto_off", Parameter("auto_off", Parameter.Type.BOOL, False)
+        # 파라미터 가져오기
+        self.__auto_off = (
+            self.get_parameter_or(
+                "auto_off",
+                Parameter("auto_off", Parameter.Type.BOOL, False),
+            )
+            .get_parameter_value()
+            .bool_value
         )
 
         self.__ip_addr_report_publisher_hd = self.create_publisher(

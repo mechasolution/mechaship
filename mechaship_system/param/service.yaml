@@ -1,6 +1,5 @@
-/**:
-  service_node:
-    ros__parameters:
-      port: /dev/ttyMCU
+/service_node:
+  ros__parameters:
+    port: /dev/ttyMCU
 
-      auto_off: True
+    auto_off: True

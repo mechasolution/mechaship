@@ -2,6 +2,7 @@ import cv2
 import rclpy
 from cv_bridge import CvBridge
 from rclpy.node import Node
+from rclpy.parameter import Parameter
 from rclpy.qos import qos_profile_sensor_data
 from sensor_msgs.msg import CompressedImage, Image
 from vision_msgs.msg import Detection2D, Detection2DArray, ObjectHypothesisWithPose
@@ -14,30 +15,42 @@ class VisualizeNode(Node):
 
     def __init__(self) -> None:
         super().__init__(
-            "visualize_node",
-            allow_undeclared_parameters=True,
-            automatically_declare_parameters_from_overrides=True,
+            "visualize_node", automatically_declare_parameters_from_overrides=True
         )
 
         # 파라미터 가져오기
         self.image_topic = (
-            self.get_parameter_or("image_topic", "/image_raw/compressed")
+            self.get_parameter_or(
+                "image_topic",
+                Parameter(
+                    "image_topic", Parameter.Type.STRING, "/image_raw/compressed"
+                ),
+            )
             .get_parameter_value()
             .string_value
         )
 
         self.detections_topic = (
-            self.get_parameter_or("detections_topic", "/detections")
+            self.get_parameter_or(
+                "detections_topic",
+                Parameter("detections_topic", Parameter.Type.STRING, "/detections"),
+            )
             .get_parameter_value()
             .string_value
         )
 
         self.preview = (
-            self.get_parameter_or("preview", True).get_parameter_value().bool_value
+            self.get_parameter_or(
+                "preview",
+                Parameter("preview", Parameter.Type.BOOL, True),
+            )
+            .get_parameter_value()
+            .bool_value
         )
 
         self.get_logger().info(f"image_topic : {self.image_topic}")
         self.get_logger().info(f"detections_topic : {self.detections_topic}")
+        self.get_logger().info(f"preview : {self.preview}")
 
         # 객체 인식 결과 이미지 Publisher 생성
         self.processed_image_publisher = self.create_publisher(
