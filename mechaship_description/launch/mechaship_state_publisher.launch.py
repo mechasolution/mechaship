@@ -20,7 +20,7 @@ def generate_launch_description():
     )
 
     with open(sdf_path, "r") as sdf:
-        robot_desc = sdf.read()
+        robot_description = sdf.read()
 
     return LaunchDescription(
         [
@@ -35,8 +35,26 @@ def generate_launch_description():
                 name="robot_state_publisher",
                 namespace="",
                 parameters=[
-                    {"use_sim_time": use_sim_time},
-                    {"robot_description": robot_desc},
+                    {
+                        "use_sim_time": use_sim_time,
+                        "robot_description": robot_description,
+                    }
+                ],
+                # debug
+                output="screen",
+                emulate_tty=True,
+            ),
+            Node(
+                executable="joint_state_publisher",
+                package="joint_state_publisher",
+                name="joint_state_publisher",
+                namespace="",
+                parameters=[
+                    {
+                        "use_sim_time": use_sim_time,
+                        "use_gui": False,
+                        "publish_default_positions": True,
+                    }
                 ],
                 # debug
                 output="screen",
