@@ -60,7 +60,7 @@ class ActuatorEnableNode(Node):
             self.get_parameter_or(
                 "thruster_pulse_100_percentage",
                 Parameter(
-                    "thruster_pulse_100_percentage", Parameter.Type.INTEGER, 2000
+                    "thruster_pulse_100_percentage", Parameter.Type.INTEGER, 1900
                 ),
             )
             .get_parameter_value()
