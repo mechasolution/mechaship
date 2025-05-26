@@ -4,7 +4,7 @@
 	branch = main
 [submodule "rf2o_laser_odometry"]
 	path = rf2o_laser_odometry
-	url = https://github.com/MAPIRlab/rf2o_laser_odometry.git
+	url = https://github.com/mechasolution/rf2o_laser_odometry.git
 	branch = ros2
 [submodule "ydlidar_ros2_driver"]
 	path = ydlidar_ros2_driver
