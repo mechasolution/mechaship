@@ -14,6 +14,14 @@ def generate_launch_description():
         get_package_share_directory("mechaship_bringup"), "param"
     )
 
+    # micro-ros
+    micro_ros_node = Node(
+        package="micro_ros_agent",
+        executable="micro_ros_agent",
+        name="micro_ros_agent",
+        arguments=["serial", "--dev", "/dev/ttyUROS"],
+    )
+
     # 액추에이터
     mechaship_actuator_parameter = LaunchConfiguration(
         "mechaship_actuator_parameter",
@@ -151,6 +159,7 @@ def generate_launch_description():
 
     return LaunchDescription(
         [
+            micro_ros_node,
             actuator_cfg_launch_arg,
             actuator_cfg_node,
             gps_driver_launch_arg,
