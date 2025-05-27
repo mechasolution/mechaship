@@ -32,7 +32,6 @@ setup(
     tests_require=["pytest"],
     entry_points={
         "console_scripts": [
-            "service_node = mechaship_system.service_node:main",
             "actuator_enable_node = mechaship_system.actuator_enable_node:main",
         ],
     },
