@@ -5,6 +5,8 @@ from mechaship_interfaces.srv import ActuatorEnable
 from rclpy.node import Node
 from rclpy.parameter import Parameter
 from ros2node.api import get_node_names
+from rclpy.executors import MultiThreadedExecutor
+from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
 
 
 class ActuatorEnableNode(Node):
@@ -70,9 +72,14 @@ class ActuatorEnableNode(Node):
             .integer_value
         )
 
-        self.create_timer(0.5, self.__watch_node_timer_callback)
+        self.timer_cb = MutuallyExclusiveCallbackGroup()
+        self.create_timer(
+            0.4, self.__watch_node_timer_callback, callback_group=self.timer_cb
+        )
         self.__last_node_status = False
         self.__last_warning_time = 0.0
+
+        self.msg = ActuatorEnable.Request()
 
     def __enable_actuator(self):
         self.__actuator_enable_client_hd = self.create_client(
@@ -83,15 +90,15 @@ class ActuatorEnableNode(Node):
                 "actuator service not available, waiting again..."
             )
 
-        msg = ActuatorEnable.Request()
-        msg.key_min_degree = self.__key_min_degree
-        msg.key_max_degree = self.__key_max_degree
-        msg.key_pulse_0_degree = self.__key_pulse_0_degree
-        msg.key_pulse_180_degree = self.__key_pulse_180_degree
-        msg.thruster_pulse_0_percentage = self.__thruster_pulse_0_percentage
-        msg.thruster_pulse_100_percentage = self.__thruster_pulse_100_percentage
+        self.msg.key_min_degree = self.__key_min_degree
+        self.msg.key_max_degree = self.__key_max_degree
+        self.msg.key_pulse_0_degree = self.__key_pulse_0_degree
+        self.msg.key_pulse_180_degree = self.__key_pulse_180_degree
+        self.msg.thruster_pulse_0_percentage = self.__thruster_pulse_0_percentage
+        self.msg.thruster_pulse_100_percentage = self.__thruster_pulse_100_percentage
 
-        self.__actuator_enable_client_hd.call_async(msg)
+        self.future = self.__actuator_enable_client_hd.call_async(self.msg)
+        self.executor.spin_until_future_complete(self.future)
 
         self.get_logger().info("actuator enabled")
 
@@ -124,10 +131,11 @@ def main(args=None):
     rclpy.init(args=args)
     node = ActuatorEnableNode()
 
-    rclpy.spin(node)
+    executor = MultiThreadedExecutor()
+    executor.add_node(node)
+    executor.spin()
 
-    node.destroy_node()
-    rclpy.try_shutdown()
+    rclpy.shutdown()
 
 
 if __name__ == "__main__":
