@@ -1,7 +1,10 @@
+import time
+
 import rclpy
-from mechaship_interfaces.srv import ActuatorDisable, ActuatorEnable
+from mechaship_interfaces.srv import ActuatorEnable
 from rclpy.node import Node
 from rclpy.parameter import Parameter
+from ros2node.api import get_node_names
 
 
 class ActuatorEnableNode(Node):
@@ -67,13 +70,18 @@ class ActuatorEnableNode(Node):
             .integer_value
         )
 
+        self.create_timer(0.5, self.__watch_node_timer_callback)
+        self.__last_node_status = False
+        self.__last_warning_time = 0.0
+
+    def __enable_actuator(self):
         self.__actuator_enable_client_hd = self.create_client(
             ActuatorEnable, "system/actuator/enable"
         )
-
-        self.__actuator_disable_client_hd = self.create_client(
-            ActuatorDisable, "system/actuator/disable"
-        )
+        while not self.__actuator_enable_client_hd.wait_for_service(timeout_sec=1.0):
+            self.get_logger().warning(
+                "actuator service not available, waiting again..."
+            )
 
         msg = ActuatorEnable.Request()
         msg.key_min_degree = self.__key_min_degree
@@ -84,41 +92,42 @@ class ActuatorEnableNode(Node):
         msg.thruster_pulse_100_percentage = self.__thruster_pulse_100_percentage
 
         self.__actuator_enable_client_hd.call_async(msg)
-        self.__actuator_enable_client_hd.call_async(msg)
-        self.__actuator_enable_client_hd.call_async(msg)
-        self.__actuator_enable_client_hd.call_async(msg)
-        future = self.__actuator_enable_client_hd.call_async(msg)
-        rclpy.spin_until_future_complete(self, future)
 
-        self.get_logger().info("enable done")
+        self.get_logger().info("actuator enabled")
 
-    def shutdown(self):
-        msg = ActuatorDisable.Request()
+        self.__actuator_enable_client_hd.destroy()
 
-        self.__actuator_disable_client_hd.call_async(msg)
-        self.__actuator_disable_client_hd.call_async(msg)
-        self.__actuator_disable_client_hd.call_async(msg)
-        self.__actuator_disable_client_hd.call_async(msg)
-        future = self.__actuator_disable_client_hd.call_async(msg)
-        rclpy.spin_until_future_complete(self, future)
+    def __watch_node_timer_callback(self):
+        available_nodes = get_node_names(node=self)
+        for name, namespace, full_name in available_nodes:
+            if name == "mcu_node":
+                if self.__last_node_status is False:
+                    self.__last_node_status = True
+                    self.__last_warning_time = 0
+                    self.__enable_actuator()
+                return
+        self.__last_node_status = False
+
+        current_time = time.time()
+        if current_time - self.__last_warning_time >= 5.0:
+            self.get_logger().warning(
+                "MCU 노드를 찾을 수 없습니다. 아래 내용을 점검해주세요."
+            )
+            self.get_logger().warning("\t 1. 조종기 설정이 UROS 모드인지 확인해주세요.")
+            self.get_logger().warning(
+                "\t 2. SBC와 메인보드 간의 USB 케이블이 올바르게 연결되어 있는지 확인해주세요."
+            )
+            self.__last_warning_time = current_time
 
 
 def main(args=None):
     rclpy.init(args=args)
     node = ActuatorEnableNode()
 
-    try:
-        rclpy.spin(node)
+    rclpy.spin(node)
 
-    except KeyboardInterrupt:
-        node.get_logger().info("Keyboard Interrupt (SIGINT)")
-
-    except Exception as e:
-        node.get_logger().error(f"Exception: {e}")
-
-    finally:
-        node.destroy_node()
-        rclpy.try_shutdown()
+    node.destroy_node()
+    rclpy.try_shutdown()
 
 
 if __name__ == "__main__":
