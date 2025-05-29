@@ -28,9 +28,8 @@ def generate_launch_description():
         name="actuator_enable_node",
         namespace="",
         parameters=[mechaship_actuator_parameter],
-        # debug
-        output="screen",
         emulate_tty=True,
+        # output="screen", # debug
     )
 
     return LaunchDescription(

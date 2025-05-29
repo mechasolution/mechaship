@@ -33,9 +33,8 @@ def generate_launch_description():
         name="slam_toolbox",
         namespace="",
         parameters=[slam_params_file, {"use_sim_time": use_sim_time}],
-        # debug
-        output="screen",
         emulate_tty=True,
+        # output="screen", # debug
     )
 
     return LaunchDescription(
