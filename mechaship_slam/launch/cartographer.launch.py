@@ -40,9 +40,8 @@ def generate_launch_description():
             "-configuration_basename",
             configuration_basename,
         ],
-        # debug
-        output="screen",
         emulate_tty=True,
+        # output="screen", # debug
     )
 
     # occupancy grid
@@ -60,9 +59,8 @@ def generate_launch_description():
             "-publish_period_sec",
             publish_period_sec,
         ],
-        # debug
-        output="screen",
         emulate_tty=True,
+        # output="screen", # debug
     )
 
     return LaunchDescription(

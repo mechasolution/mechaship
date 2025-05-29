@@ -33,9 +33,8 @@ def generate_launch_description():
         namespace="",
         parameters=[{"use_sim_time": use_sim_time}],
         arguments=["-d", rviz_config_dir],
-        # debug
-        output="screen",
         emulate_tty=True,
+        # output="screen", # debug
     )
 
     return LaunchDescription(

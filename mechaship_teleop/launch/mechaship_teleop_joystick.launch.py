@@ -9,9 +9,8 @@ def generate_launch_description():
         name="joy_node",
         namespace="",
         parameters=[],
-        # debug
-        output="screen",
         emulate_tty=True,
+        # output="screen", # debug
     )
 
     teleop_joystick = Node(
@@ -20,9 +19,8 @@ def generate_launch_description():
         name="teleop_joystick",
         namespace="",
         parameters=[],
-        # debug
-        output="screen",
         emulate_tty=True,
+        # output="screen", # debug
     )
 
     return LaunchDescription(

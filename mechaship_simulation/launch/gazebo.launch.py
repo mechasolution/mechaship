@@ -57,9 +57,8 @@ def generate_launch_description():
                 "z": 0.02,
             }
         ],
-        # debug
-        output="screen",
         emulate_tty=True,
+        # output="screen", # debug
     )
 
     # Gazebo ROS 브릿지
@@ -81,9 +80,8 @@ def generate_launch_description():
                 "qos_overrides./scan.publisher.durability": "volatile",
             }
         ],
-        # debug
-        output="screen",
         emulate_tty=True,
+        # output="screen", # debug
     )
 
     # Gazebo ROS 이미지 브릿지
@@ -93,9 +91,8 @@ def generate_launch_description():
         name="image_bridge",
         namespace="",
         arguments=["/image_raw"],
-        # debug
-        output="screen",
         emulate_tty=True,
+        # output="screen", # debug
     )
 
     return LaunchDescription(

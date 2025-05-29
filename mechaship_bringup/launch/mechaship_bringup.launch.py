@@ -16,10 +16,13 @@ def generate_launch_description():
 
     # micro-ros
     micro_ros_node = Node(
-        package="micro_ros_agent",
         executable="micro_ros_agent",
+        package="micro_ros_agent",
         name="micro_ros_agent",
+        namespace="",
         arguments=["serial", "--dev", "/dev/ttyUROS"],
+        emulate_tty=True,
+        # output="screen", # debug
     )
 
     # 액추에이터
@@ -36,9 +39,8 @@ def generate_launch_description():
         name="actuator_cfg_node",
         namespace="",
         parameters=[mechaship_actuator_parameter],
-        # debug
-        output="screen",
         emulate_tty=True,
+        # output="screen", # debug
     )
 
     # GPS 드라이버
@@ -60,9 +62,8 @@ def generate_launch_description():
             ("fix", "gps/fix"),
             ("fix_velocity", "gps/fix_velocity"),
         ],
-        # debug
-        output="screen",
         emulate_tty=True,
+        # output="screen", # debug
     )
 
     # USB 카메라 드라이버
@@ -79,9 +80,8 @@ def generate_launch_description():
         name="usb_cam_node_exe",
         namespace="",
         parameters=[mechaship_camera_parameter],
-        # debug
-        output="screen",
         emulate_tty=True,
+        # output="screen", # debug
     )
 
     # LiDAR 드라이버
@@ -98,9 +98,8 @@ def generate_launch_description():
         name="ydlidar_ros2_driver_node",
         namespace="",
         parameters=[mechaship_lidar_parameter],
-        # debug
-        output="screen",
         emulate_tty=True,
+        # output="screen", # debug
     )
 
     # IMU 드라이버
@@ -118,9 +117,8 @@ def generate_launch_description():
         namespace="",
         parameters=[mechaship_imu_parameter],
         remappings=[("imu/data", "imu"), ("imu/mag", "mag")],
-        # debug
-        output="screen",
         emulate_tty=True,
+        # output="screen", # debug
     )
 
     # 로봇 형상 정보 publish
@@ -152,9 +150,8 @@ def generate_launch_description():
             }
         ],
         arguments=["--ros-args", "--log-level", "warn"],
-        # debug
-        output="screen",
         emulate_tty=True,
+        # output="screen", # debug
     )
 
     return LaunchDescription(

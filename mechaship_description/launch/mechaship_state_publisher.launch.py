@@ -40,9 +40,8 @@ def generate_launch_description():
                         "robot_description": robot_description,
                     }
                 ],
-                # debug
-                output="screen",
                 emulate_tty=True,
+                # output="screen", # debug
             ),
             Node(
                 executable="joint_state_publisher",
@@ -56,9 +55,8 @@ def generate_launch_description():
                         "publish_default_positions": True,
                     }
                 ],
-                # debug
-                output="screen",
                 emulate_tty=True,
+                # output="screen", # debug
             ),
         ]
     )
