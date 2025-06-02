@@ -15,25 +15,35 @@
 
     <link name="base_link">
       <pose>0 0 0 0 0 0</pose>
-      <inertial>
-        <pose>0.014518382736156349 0 0.033134174267100983 0 0 0</pose>
-        <mass>1.228</mass>
-        <inertia>
-          <ixx>1.008111357058245</ixx>
-          <ixy>-2.8130448050855718e-26</ixy>
-          <ixz>-0.001581156448078095</ixz>
-          <iyy>1.014390010169707</iyy>
-          <iyz>-4.1263254759938491e-25</iyz>
-          <izz>1.008278653111462</izz>
-        </inertia>
+      <enable_wind>true</enable_wind>
+      <inertial auto="true">
+        <pose>0 0 -0.03 0 0 0</pose>
+        <mass>5.0</mass>
       </inertial>
-      <collision name="base_collision">
-        <pose>0 0 0 0 0 0</pose>
+      <collision name="base_top_collision">
+        <pose>0 0 0.135 0 0 0</pose>
         <geometry>
-          <mesh>
-            <scale>0.001 0.001 0.001</scale>
-            <uri>package://mechaship_description/models/mechaship/meshes/body.stl</uri>
-          </mesh>
+          <box>
+            <size>0.4 0.17 0.055</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="base_left_collision">
+        <pose>0.025 0.11 0.045 0 1.5708 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.05</radius>
+            <length>0.65</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <collision name="base_right_collision">
+        <pose>0.025 -0.11 0.045 0 1.5708 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.05</radius>
+            <length>0.65</length>
+          </cylinder>
         </geometry>
       </collision>
       <visual name="base_visual">
@@ -168,6 +178,18 @@
 
     <link name="base_scan">
       <pose relative_to="base_link">-0.072 0 0.207947 0 0 0</pose>
+      <inertial auto="true">
+        <mass>0.14</mass>
+      </inertial>
+      <collision name="base_collision">
+        <pose>-0.015 0 -0.018 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.05</radius>
+            <length>0.06</length>
+          </cylinder>
+        </geometry>
+      </collision>
       <visual name="scan_visual">
         <pose>0 0 -0.022 0 0 0</pose>
         <geometry>
@@ -223,6 +245,17 @@
 
     <link name="camera_link">
       <pose relative_to="base_link">0.222 0 0.145 0 1.5708 0</pose>
+      <inertial auto="true">
+        <mass>0.162</mass>
+      </inertial>
+      <collision name="base_collision">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.029 0.094 0.024</size>
+          </box>
+        </geometry>
+      </collision>
       <visual name="camera_visual">
         <pose>0 0 0 -1.5708 -1.5708 0</pose>
         <geometry>
@@ -290,25 +323,25 @@
 
     <link name="thruster_link">
       <pose relative_to="base_link">-0.247662 0 0.109197 0 0 0</pose>
-      <inertial>
-        <pose>0 0 0 0 0 0</pose>
-        <mass>0.114</mass>
-        <inertia>
-          <ixx>0.001</ixx>
-          <ixy>0</ixy>
-          <ixz>0</ixz>
-          <iyy>0.001</iyy>
-          <iyz>0</iyz>
-          <izz>0.001</izz>
-        </inertia>
+      <inertial auto="true">
+        <mass>1.5</mass>
       </inertial>
-      <collision name='thruster_collision'>
-        <pose>0 0 -0.063 0 0 0</pose>
+      <collision name="thruster_top_collision">
+        <pose>0 0 0 0 0 0</pose>
         <geometry>
-          <mesh>
-            <scale>0.001 0.001 0.001</scale>
-            <uri> package://mechaship_description/models/mechaship/meshes/thruster.stl</uri>
-          </mesh>
+          <cylinder>
+            <radius>0.005</radius>
+            <length>0.12</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <collision name="thruster_bottom_collision">
+        <pose>0 0 -0.095 0 1.6 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.04</radius>
+            <length>0.055</length>
+          </cylinder>
         </geometry>
       </collision>
       <visual name="thruster_visual">
@@ -334,6 +367,55 @@
       name="gz::sim::systems::JointStatePublisher">
       <topic>joint_states</topic>
       <joint_name>thruster_joint</joint_name>
+    </plugin>
+
+    <!-- Hull 1: 왼쪽 -->
+    <plugin name="vrx::Surface" filename="libSurface.so">
+      <link_name>base_link</link_name>
+      <hull_length>1.0</hull_length>
+      <hull_radius>0.1</hull_radius>
+      <fluid_level>0</fluid_level>
+      <points>
+        <point>0.4 0.11 0</point>
+        <point>-0.4 0.11 0</point>
+      </points>
+      <wavefield>
+        <topic>/vrx/wavefield/parameters</topic>
+      </wavefield>
+    </plugin>
+
+    <!-- Hull 2: 오른쪽 -->
+    <plugin name="vrx::Surface" filename="libSurface.so">
+      <link_name>base_link</link_name>
+      <hull_length>1.0</hull_length>
+      <hull_radius>0.1</hull_radius>
+      <fluid_level>0</fluid_level>
+      <points>
+        <point>0.4 -0.11 0</point>
+        <point>-0.4 -0.11 0</point>
+      </points>
+      <wavefield>
+        <topic>/vrx/wavefield/parameters</topic>
+      </wavefield>
+    </plugin>
+
+    <!-- 수력 플러그인 -->
+    <plugin name="vrx::SimpleHydrodynamics" filename="libSimpleHydrodynamics.so">
+      <link_name>base_link</link_name>
+      <xDotU>0.0</xDotU>
+      <yDotV>0.0</yDotV>
+      <nDotR>0.0</nDotR>
+      <xU>20.0</xU>
+      <xUU>30.0</xUU>
+      <yV>40.0</yV>
+      <yVV>50.0</yVV>
+      <zW>80.0</zW>
+      <kP>10.0</kP>
+      <kPP>20.0</kPP>
+      <mQ>20.0</mQ>
+      <mQQ>30.0</mQQ>
+      <nR>40.0</nR>
+      <nRR>50.0</nRR>
     </plugin>
 
   </model>
