@@ -2,11 +2,11 @@ import time
 
 import rclpy
 from mechaship_interfaces.srv import ActuatorEnable
+from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
+from rclpy.executors import MultiThreadedExecutor
 from rclpy.node import Node
 from rclpy.parameter import Parameter
 from ros2node.api import get_node_names
-from rclpy.executors import MultiThreadedExecutor
-from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
 
 
 class ActuatorEnableNode(Node):

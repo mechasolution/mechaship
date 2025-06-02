@@ -21,21 +21,16 @@ from sensor_msgs.msg import CompressedImage
 from std_msgs.msg import Bool
 from vision_msgs.msg import Detection2D, Detection2DArray, ObjectHypothesisWithPose
 
-DEBUG = True
-
 
 class DetectNode(LifecycleNode):
     def __init__(self) -> None:
         super().__init__(
-            "detect_node",
-            allow_undeclared_parameters=True,
-            automatically_declare_parameters_from_overrides=True,
+            "detect_node", automatically_declare_parameters_from_overrides=True
         )
 
     # 디버그 메세지 출력 함수
     def log_debug(self, message: str) -> None:
-        if DEBUG:
-            self.get_logger().info(message)
+        self.get_logger().debug(message)
 
     # <on_configure> 노드를 생성할 때 / 변수 선언
     def on_configure(self, state: LifecycleState) -> TransitionCallbackReturn:
