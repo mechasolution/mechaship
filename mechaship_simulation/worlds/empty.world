@@ -1,29 +1,26 @@
 <?xml version="1.0"?>
 <sdf version="1.11">
   <world name="empty">
-    <physics name="1ms" type="ignored">
-      <max_step_size>0.001</max_step_size>
+
+    <!-- 물리 엔진 -->
+    <physics name="4ms" type="dart">
+      <max_step_size>0.004</max_step_size>
       <real_time_factor>1.0</real_time_factor>
     </physics>
 
-    <plugin filename="gz-sim-physics-system"
-      name="gz::sim::systems::Physics" />
-    <plugin filename="gz-sim-user-commands-system"
-      name="gz::sim::systems::UserCommands" />
-    <plugin filename="gz-sim-scene-broadcaster-system"
-      name="gz::sim::systems::SceneBroadcaster" />
+    <!-- Gazebo 기본 플러그인 -->
+    <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics" />
+    <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands" />
+    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster" />
 
     <!-- GPS -->
-    <plugin filename="gz-sim-navsat-system"
-      name="gz::sim::systems::NavSat" />
+    <plugin filename="gz-sim-navsat-system" name="gz::sim::systems::NavSat" />
 
     <!-- IMU -->
-    <plugin filename="gz-sim-imu-system"
-      name="gz::sim::systems::Imu" />
+    <plugin filename="gz-sim-imu-system" name="gz::sim::systems::Imu" />
 
     <!-- LiDAR -->
-    <plugin filename="gz-sim-sensors-system"
-      name="gz::sim::systems::Sensors">
+    <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
       <render_engine>ogre2</render_engine>
     </plugin>
 
@@ -37,6 +34,7 @@
       <heading_deg>0.0</heading_deg>
     </spherical_coordinates>
 
+    <!-- 조명(태양) 설정 -->
     <light type="directional" name="sun">
       <cast_shadows>true</cast_shadows>
       <pose>0 0 10 0 0 0</pose>
@@ -51,30 +49,129 @@
       <direction>-0.5 0.1 -0.9</direction>
     </light>
 
-    <model name="ground_plane">
-      <static>true</static>
-      <link name="link">
-        <collision name="collision">
+    <!-- 바람 플러그인 -->
+    <plugin filename="libUSVWind.so" name="vrx::USVWind">
+      <wind_obj>
+        <name>mechaship</name>
+        <link_name>mechaship::base_link</link_name>
+        <coeff_vector>.5 .5 .33</coeff_vector>
+      </wind_obj>
+      <!-- Wind -->
+      <wind_direction>240</wind_direction>
+      <!-- in degrees -->
+      <wind_mean_velocity>5.0</wind_mean_velocity>
+      <var_wind_gain_constants>0.5</var_wind_gain_constants>
+      <var_wind_time_constants>2.0</var_wind_time_constants>
+      <random_seed>10</random_seed>
+      <!-- set to zero/empty to randomize -->
+      <update_rate>10</update_rate>
+      <topic_wind_speed>/vrx/debug/wind/speed</topic_wind_speed>
+      <topic_wind_direction>/vrx/debug/wind/direction</topic_wind_direction>
+    </plugin>
+
+    <!-- 파도 플러그인 (wavefield publisher) -->
+    <plugin filename="libPublisherPlugin.so" name="vrx::PublisherPlugin">
+      <message type="gz.msgs.Param" topic="/vrx/wavefield/parameters" every="2.0"><![CDATA[
+        params {
+          key: "direction"
+          value {
+            type: DOUBLE
+            double_value: 0.0
+          }
+        }
+        params {
+          key: "gain"
+          value {
+            type: DOUBLE
+            double_value: 0.3
+          }
+        }
+        params {
+          key: "period"
+          value {
+            type: DOUBLE
+            double_value: 5
+          }
+        }
+        params {
+          key: "steepness"
+          value {
+            type: DOUBLE
+            double_value: 0
+          }
+        }
+      ]]></message>
+    </plugin>
+
+    <!-- 장면 설정 -->
+    <scene>
+      <sky />
+      <grid>false</grid>
+      <ambient>1.0 1.0 1.0</ambient>
+      <background>0.8 0.8 0.8</background>
+    </scene>
+
+    <!-- 부표 1 -->
+    <model name="buoy1">
+      <pose>2 0 0.1 0 0 0</pose>
+      <link name="buoy1_link">
+        <inertial>
+          <mass>5</mass>
+          <inertia>
+            <ixx>0.0161</ixx>
+            <iyy>0.0161</iyy>
+            <izz>0.0219</izz>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyz>0</iyz>
+          </inertia>
+        </inertial>
+        <collision name="buoy1_collision">
           <geometry>
-            <plane>
-              <normal>0 0 1</normal>
-            </plane>
+            <cylinder>
+              <radius>0.191</radius>
+              <length>0.36</length>
+            </cylinder>
           </geometry>
         </collision>
-        <visual name="visual">
+        <visual name="buoy1_visual">
           <geometry>
-            <plane>
-              <normal>0 0 1</normal>
-              <size>100 100</size>
-            </plane>
+            <cylinder>
+              <radius>0.191</radius>
+              <length>0.36</length>
+            </cylinder>
           </geometry>
           <material>
-            <ambient>0.8 0.8 0.8 1</ambient>
-            <diffuse>0.8 0.8 0.8 1</diffuse>
-            <specular>0.8 0.8 0.8 1</specular>
+            <ambient>1 1 1 1</ambient>
+            <diffuse>1 1 1 1</diffuse>
           </material>
         </visual>
       </link>
+      <plugin name="vrx::PolyhedraBuoyancyDrag" filename="libPolyhedraBuoyancyDrag.so">
+        <fluid_density>1000</fluid_density>
+        <fluid_level>0.0</fluid_level>
+        <linear_drag>30.0</linear_drag>
+        <angular_drag>5.0</angular_drag>
+        <buoyancy name="buoy1_collision">
+          <link_name>buoy1_link</link_name>
+          <pose>0 0 0 0 0 0</pose>
+          <geometry>
+            <cylinder>
+              <radius>0.191</radius>
+              <length>0.36</length>
+            </cylinder>
+          </geometry>
+        </buoyancy>
+        <wavefield>
+          <topic>/vrx/wavefield/parameters</topic>
+        </wavefield>
+      </plugin>
     </model>
+
+    <include>
+      <name>Coast Waves</name>
+      <pose>0 0 0 0 0 0</pose>
+      <uri>coast_waves</uri>
+    </include>
   </world>
 </sdf>
