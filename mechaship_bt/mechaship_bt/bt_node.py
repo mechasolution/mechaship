@@ -1,11 +1,7 @@
 import rclpy
-from mechaship_bt.actions import ComputeFinalHeading
-from mechaship_bt.conditions import IsMarkerDetected, IsWaypointReached
-from mechaship_bt.sensors import (
-    UpdateMarkerDetected,
-    UpdateScanObstacle,
-    UpdateWaypointHeading,
-)
+from mechaship_bt.bt.actions import *
+from mechaship_bt.bt.conditions import *
+from mechaship_bt.bt.sensors import *
 from py_trees.common import ParallelPolicy
 from py_trees.composites import Parallel, Sequence
 from py_trees.display import unicode_blackboard, unicode_tree
