@@ -32,6 +32,9 @@ class RKNNHelper:
 
         return padded_image
 
+    def expand_dims(self, padded_image):
+        return np.expand_dims(padded_image, 0)
+
     # Post processing functions taken from https://github.com/airockchip/rknn_model_zoo
     def filter_boxes(self, boxes, box_confidences, box_class_probs):
         """Filter boxes with object threshold."""
