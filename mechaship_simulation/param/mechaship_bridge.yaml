@@ -54,9 +54,16 @@
   gz_type_name: "gz.msgs.Pose_V"
   direction: GZ_TO_ROS
 
-# gz topic subscribed to by DiffDrive plugin
-- ros_topic_name: "cmd_vel"
-  gz_topic_name: "cmd_vel"
-  ros_type_name: "geometry_msgs/msg/Twist"
-  gz_type_name: "gz.msgs.Twist"
+# gz topic subscribed to by Thruster plugin
+- ros_topic_name: "actuator/thruster/percentage"
+  gz_topic_name: "actuator/thruster/percentage"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+# gz topic subscribed to by JointPositionController plugin
+- ros_topic_name: "actuator/key/degree"
+  gz_topic_name: "actuator/key/degree"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
   direction: ROS_TO_GZ

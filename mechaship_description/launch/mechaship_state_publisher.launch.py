@@ -3,6 +3,7 @@ import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
+from launch.conditions import UnlessCondition
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
@@ -48,6 +49,7 @@ def generate_launch_description():
                 package="joint_state_publisher",
                 name="joint_state_publisher",
                 namespace="",
+                condition=UnlessCondition(use_sim_time),
                 parameters=[
                     {
                         "use_sim_time": use_sim_time,

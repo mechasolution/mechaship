@@ -16,9 +16,17 @@
     <link name="base_link">
       <pose>0 0 0 0 0 0</pose>
       <enable_wind>true</enable_wind>
-      <inertial auto="true">
-        <pose>0 0 -0.03 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
         <mass>5.0</mass>
+        <inertia>
+          <ixx>0.02</ixx>
+          <iyy>0.16</iyy>
+          <izz>0.17</izz>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyz>0.0</iyz>
+        </inertia>
       </inertial>
       <collision name="base_top_collision">
         <pose>0 0 0.135 0 0 0</pose>
@@ -178,8 +186,17 @@
 
     <link name="base_scan">
       <pose relative_to="base_link">-0.072 0 0.207947 0 0 0</pose>
-      <inertial auto="true">
+      <inertial>
+        <pose>-0.015 0 -0.018 0 0 0</pose>
         <mass>0.14</mass>
+        <inertia>
+          <ixx>2.1e-4</ixx>
+          <iyy>2.1e-4</iyy>
+          <izz>1.7e-4</izz>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyz>0.0</iyz>
+        </inertia>
       </inertial>
       <collision name="base_collision">
         <pose>-0.015 0 -0.018 0 0 0</pose>
@@ -245,8 +262,16 @@
 
     <link name="camera_link">
       <pose relative_to="base_link">0.222 0 0.145 0 1.5708 0</pose>
-      <inertial auto="true">
+      <inertial>
         <mass>0.162</mass>
+        <inertia>
+          <ixx>2.98e-05</ixx>
+          <iyy>1.38e-05</iyy>
+          <izz>3.78e-05</izz>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyz>0.0</iyz>
+        </inertia>
       </inertial>
       <collision name="base_collision">
         <pose>0 0 0 0 0 0</pose>
@@ -309,25 +334,27 @@
       <axis>
         <xyz>0 0 1</xyz>
         <limit>
-          <lower>-1.5708</lower>
-          <upper>1.5708</upper>
+          <lower>1.0472</lower>
+          <upper>2.0944</upper>
           <effort>1.0</effort>
-          <velocity>3.1415</velocity>
+          <velocity>1.0</velocity>
         </limit>
-        <dynamics>
-          <spring_reference>0</spring_reference>
-          <spring_stiffness>0</spring_stiffness>
-        </dynamics>
       </axis>
     </joint>
 
     <link name="thruster_link">
-      <pose relative_to="base_link">-0.247662 0 0.109197 0 0 0</pose>
-      <inertial auto="true">
-        <mass>1.5</mass>
+      <pose relative_to="base_link">-0.25 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0.093 0 0 0</pose>
+        <mass>0.5</mass>
+        <inertia>
+          <ixx>0.0006</ixx>
+          <iyy>0.0006</iyy>
+          <izz>0.00001</izz>
+        </inertia>
       </inertial>
-      <collision name="thruster_top_collision">
-        <pose>0 0 0 0 0 0</pose>
+      <collision name="thruster_collision">
+        <pose>0 0 0.093 0 0 0</pose>
         <geometry>
           <cylinder>
             <radius>0.005</radius>
@@ -335,17 +362,8 @@
           </cylinder>
         </geometry>
       </collision>
-      <collision name="thruster_bottom_collision">
-        <pose>0 0 -0.095 0 1.6 0</pose>
-        <geometry>
-          <cylinder>
-            <radius>0.04</radius>
-            <length>0.055</length>
-          </cylinder>
-        </geometry>
-      </collision>
       <visual name="thruster_visual">
-        <pose>0 0 -0.063 0 0 0</pose>
+        <pose>0 0 0.03 0 0 1.5708</pose>
         <geometry>
           <mesh>
             <uri>package://mechaship_description/models/mechaship/meshes/thruster.stl</uri>
@@ -362,37 +380,102 @@
       </visual>
     </link>
 
+    <joint name="propeller_joint" type="revolute">
+      <pose relative_to="thruster_link">0 0 0 0 0 0</pose>
+      <parent>thruster_link</parent>
+      <child>propeller_link</child>
+      <axis>
+        <xyz>0 -1 0</xyz>
+        <limit>
+          <lower>-1000</lower>
+          <upper>1000</upper>
+          <effort>10</effort>
+          <velocity>100</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.1</damping>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <link name="propeller_link">
+      <pose relative_to="thruster_link">0 0 0 0 0 0</pose>
+      <inertial>
+        <mass>0.178</mass>
+        <inertia>
+          <ixx>0.00029</ixx>
+          <iyy>0.00029</iyy>
+          <izz>0.00013</izz>
+        </inertia>
+      </inertial>
+      <collision name="propeller_collision">
+        <pose>0 0 -0.005 0 1.6 1.5708</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.04</radius>
+            <length>0.055</length>
+          </cylinder>
+        </geometry>
+      </collision>
+    </link>
+
+    <!-- Joint Position Controller -->
+    <plugin filename="gz-sim-joint-position-controller-system"
+      name="gz::sim::systems::JointPositionController">
+      <joint_name>thruster_joint</joint_name>
+      <use_actuator_msg>false</use_actuator_msg>
+      <cmd_max>3.1415</cmd_max>
+      <use_velocity_commands>true</use_velocity_commands>
+      <topic>actuator/key/degree</topic>
+      <initial_position>1.5708</initial_position>
+    </plugin>
+
+    <!-- Thruster -->
+    <plugin filename="gz-sim-thruster-system"
+      name="gz::sim::systems::Thruster">
+      <namespace />
+      <topic>actuator/thruster/percentage</topic>
+      <joint_name>propeller_joint</joint_name>
+      <fluid_density>1000</fluid_density>
+      <propeller_diameter>0.07</propeller_diameter>
+      <thrust_coefficient>0.001</thrust_coefficient>
+      <velocity_control>true</velocity_control>
+      <max_thrust_cmd>100</max_thrust_cmd>
+      <min_thrust_cmd>-100</min_thrust_cmd>
+    </plugin>
+
     <!-- Joint state publisher -->
     <plugin filename="gz-sim-joint-state-publisher-system"
       name="gz::sim::systems::JointStatePublisher">
       <topic>joint_states</topic>
       <joint_name>thruster_joint</joint_name>
+      <joint_name>propeller_joint</joint_name>
     </plugin>
 
-    <!-- Hull 1: 왼쪽 -->
-    <plugin name="vrx::Surface" filename="libSurface.so">
+    <!-- Left hull -->
+    <plugin filename="libSurface.so" name="vrx::Surface">
       <link_name>base_link</link_name>
-      <hull_length>1.0</hull_length>
+      <hull_length>0.8</hull_length>
       <hull_radius>0.1</hull_radius>
       <fluid_level>0</fluid_level>
       <points>
-        <point>0.4 0.11 0</point>
-        <point>-0.4 0.11 0</point>
+        <point>0.35 0.11 0</point>
+        <point>-0.35 0.11 0</point>
       </points>
       <wavefield>
         <topic>/vrx/wavefield/parameters</topic>
       </wavefield>
     </plugin>
 
-    <!-- Hull 2: 오른쪽 -->
-    <plugin name="vrx::Surface" filename="libSurface.so">
+    <!-- Right hull -->
+    <plugin filename="libSurface.so" name="vrx::Surface">
       <link_name>base_link</link_name>
-      <hull_length>1.0</hull_length>
+      <hull_length>0.8</hull_length>
       <hull_radius>0.1</hull_radius>
       <fluid_level>0</fluid_level>
       <points>
-        <point>0.4 -0.11 0</point>
-        <point>-0.4 -0.11 0</point>
+        <point>0.35 -0.11 0</point>
+        <point>-0.35 -0.11 0</point>
       </points>
       <wavefield>
         <topic>/vrx/wavefield/parameters</topic>
@@ -400,22 +483,25 @@
     </plugin>
 
     <!-- 수력 플러그인 -->
-    <plugin name="vrx::SimpleHydrodynamics" filename="libSimpleHydrodynamics.so">
+    <plugin filename="libSimpleHydrodynamics.so"
+      name="vrx::SimpleHydrodynamics">
       <link_name>base_link</link_name>
-      <xDotU>0.0</xDotU>
-      <yDotV>0.0</yDotV>
-      <nDotR>0.0</nDotR>
-      <xU>20.0</xU>
-      <xUU>30.0</xUU>
-      <yV>40.0</yV>
-      <yVV>50.0</yVV>
-      <zW>80.0</zW>
+      <!-- Added mass -->
+      <xDotU>8.0</xDotU>
+      <yDotV>4.0</yDotV>
+      <nDotR>2.0</nDotR>
+      <!-- Linear and quadratic drag -->
+      <xU>4.0</xU>
+      <xUU>12.0</xUU>
+      <yV>8.0</yV>
+      <yVV>20.0</yVV>
+      <zW>50.0</zW>
       <kP>10.0</kP>
       <kPP>20.0</kPP>
       <mQ>20.0</mQ>
       <mQQ>30.0</mQQ>
-      <nR>40.0</nR>
-      <nRR>50.0</nRR>
+      <nR>4.0</nR>
+      <nRR>12.0</nRR>
     </plugin>
 
   </model>
