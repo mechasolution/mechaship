@@ -1,8 +1,6 @@
 import time
 from os.path import join
 
-import numpy as np
-
 # ROS 2
 import rclpy
 from ament_index_python.packages import get_package_share_directory
@@ -13,7 +11,7 @@ from rclpy.parameter import Parameter
 from rclpy.qos import qos_profile_sensor_data
 
 # RKNN
-from rknn_helper import RKNNHelper
+from mechaship_yolov8.utils.rknn_helper import RKNNHelper
 from rknnlite.api import RKNNLite
 
 # ROS 2 Messages and Services
@@ -268,7 +266,7 @@ class DetectNode(LifecycleNode):
         padded_image = self.rknn_helper.resize_with_padding(origin_image)
 
         # RKNN에 사용할 수 있는 구조로 변경 (4dim)
-        input_image = np.expand_dims(padded_image, 0)
+        input_image = self.rknn_helper.expand_dims(padded_image)
 
         # 객체 탐지 실행
         self.log_debug("--> Running model")
