@@ -1,11 +1,15 @@
-import os
+import math
 import select
 import sys
 import termios
+import time
 import tty
 
 import rclpy
-from std_msgs.msg import Float32
+from std_msgs.msg import Float64
+
+THROTTLE_TOPIC = "actuator/thruster/percentage"
+KEY_TOPIC = "actuator/key/degree"
 
 THROTTLE_STEP_SIZE = 5.0
 KEY_STEP_SIZE = 5.0
@@ -19,140 +23,105 @@ Moving around:
         x
 w/x : increase/decrease throttle percentage (0~100%)
 a/d : increase/decrease key degree (60~120°)
-space key, s : force stop
+space key, s : force stop (throttle 0%, key 90°)
 CTRL-C to quit
-"""
-
-e = """
-Communications Failed
 """
 
 
 def get_key(settings):
-    if os.name == "nt":
-        return msvcrt.getch().decode("utf-8")
     tty.setraw(sys.stdin.fileno())
     rlist, _, _ = select.select([sys.stdin], [], [], 0.1)
-    if rlist:
-        key = sys.stdin.read(1)
-    else:
-        key = ""
-
+    key = sys.stdin.read(1) if rlist else ""
     termios.tcsetattr(sys.stdin, termios.TCSADRAIN, settings)
     return key
 
 
-def print_vels(target_throttle, target_key):
-    print(
-        "currently:\tthrottle percentage {0}%\t key degree {1}°".format(
-            target_throttle, target_key
-        )
-    )
+def print_status(throttle, key_deg):
+    sys.stdout.write("\r" + " " * 50)  # 먼저 기존 줄 지우기
+    sys.stdout.write(f"\rcurrently:\tthrottle {int(throttle)}%\tkey {int(key_deg)}°")
+    sys.stdout.flush()
 
 
-def make_simple_profile(output, input, slop):
-    if input > output:
-        output = min(input, output + slop)
-    elif input < output:
-        output = max(input, output - slop)
-    else:
-        output = input
-
-    return output
+def constrain(val, low, high):
+    return max(min(val, high), low)
 
 
-def constrain(input_vel, low_bound, high_bound):
-    if input_vel < low_bound:
-        input_vel = low_bound
-    elif input_vel > high_bound:
-        input_vel = high_bound
-    else:
-        input_vel = input_vel
-
-    return input_vel
+def check_throttle_limit(val):
+    return constrain(val, -100.0, 100.0)
 
 
-def check_thruster_limit(vel):
-    return constrain(vel, -100.0, 100.0)
-
-
-def check_key_limit(vel):
-    return constrain(vel, 60.0, 120.0)
+def check_key_limit(val):
+    return constrain(val, 60.0, 120.0)
 
 
 def main():
     settings = termios.tcgetattr(sys.stdin)
 
     rclpy.init()
-
     node = rclpy.create_node("teleop_keyboard")
-    key_publisher = node.create_publisher(Float32, "actuator/key/degree", 10)
-    throttle_publisher = node.create_publisher(
-        Float32, "actuator/thruster/percentage", 10
-    )
+    throttle_publisher = node.create_publisher(Float64, THROTTLE_TOPIC, 10)
+    key_publisher = node.create_publisher(Float64, KEY_TOPIC, 10)
 
-    status = 0
     target_throttle = 0.0
     target_key = 90.0
 
     try:
         print(msg)
-        while 1:
+        while True:
             key = get_key(settings)
             if key == "w":
-                target_throttle = check_thruster_limit(
+                target_throttle = check_throttle_limit(
                     target_throttle + THROTTLE_STEP_SIZE
                 )
-                status = status + 1
-                print_vels(target_throttle, target_key)
             elif key == "x":
-                target_throttle = check_thruster_limit(
+                target_throttle = check_throttle_limit(
                     target_throttle - THROTTLE_STEP_SIZE
                 )
-                status = status + 1
-                print_vels(target_throttle, target_key)
             elif key == "a":
                 target_key = check_key_limit(target_key - KEY_STEP_SIZE)
-                status = status + 1
-                print_vels(target_throttle, target_key)
             elif key == "d":
                 target_key = check_key_limit(target_key + KEY_STEP_SIZE)
-                status = status + 1
-                print_vels(target_throttle, target_key)
             elif key == " " or key == "s":
                 target_throttle = 0.0
                 target_key = 90.0
-                print_vels(target_throttle, target_key)
+            elif key == "\x03":  # Ctrl-C
+                break
             else:
-                if key == "\x03":
-                    break
                 continue
 
-            if status == 20:
-                print(msg)
-                status = 0
+            print_status(target_throttle, target_key)
 
-            _msg = Float32()
+            # publish throttle
+            throttle_msg = Float64()
+            throttle_msg.data = target_throttle
+            throttle_publisher.publish(throttle_msg)
 
-            _msg.data = target_key
-            key_publisher.publish(_msg)
+            # publish key angle (radians)
+            key_msg = Float64()
+            key_msg.data = math.radians(target_key)
+            key_publisher.publish(key_msg)
 
-            _msg.data = target_throttle
-            throttle_publisher.publish(_msg)
+            time.sleep(0.05)
 
     except Exception as e:
-        print(e)
+        print(f"\n\nException: {e}")
 
     finally:
-        _msg = Float32()
+        print("\n\nShutting down, resetting to default state...")
 
-        _msg.data = 90.0
-        key_publisher.publish(_msg)
+        # reset
+        throttle_msg = Float64()
+        throttle_msg.data = 0.0
+        throttle_publisher.publish(throttle_msg)
 
-        _msg.data = 0.0
-        throttle_publisher.publish(_msg)
+        key_msg = Float64()
+        key_msg.data = math.radians(90.0)
+        key_publisher.publish(key_msg)
 
         termios.tcsetattr(sys.stdin, termios.TCSADRAIN, settings)
+
+        node.destroy_node()
+        rclpy.shutdown()
 
 
 if __name__ == "__main__":

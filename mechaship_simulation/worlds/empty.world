@@ -54,13 +54,13 @@
       <wind_obj>
         <name>mechaship</name>
         <link_name>mechaship::base_link</link_name>
-        <coeff_vector>.5 .5 .33</coeff_vector>
+        <coeff_vector>.2 .2 .1</coeff_vector>
       </wind_obj>
       <!-- Wind -->
       <wind_direction>240</wind_direction>
       <!-- in degrees -->
-      <wind_mean_velocity>5.0</wind_mean_velocity>
-      <var_wind_gain_constants>0.5</var_wind_gain_constants>
+      <wind_mean_velocity>1.0</wind_mean_velocity>
+      <var_wind_gain_constants>0.2</var_wind_gain_constants>
       <var_wind_time_constants>2.0</var_wind_time_constants>
       <random_seed>10</random_seed>
       <!-- set to zero/empty to randomize -->

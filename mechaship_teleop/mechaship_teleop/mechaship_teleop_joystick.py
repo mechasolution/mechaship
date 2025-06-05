@@ -2,18 +2,11 @@ import rclpy
 from mechaship_interfaces.msg import RgbwLedColor, ToneTopic
 from rclpy.node import Node
 from sensor_msgs.msg import Joy
-from std_msgs.msg import Float32
+from std_msgs.msg import Float64
 
 
-def constrain(input_vel, low_bound, high_bound):
-    if input_vel < low_bound:
-        input_vel = low_bound
-    elif input_vel > high_bound:
-        input_vel = high_bound
-    else:
-        input_vel = input_vel
-
-    return input_vel
+def constrain(val, low, high):
+    return max(min(val, high), low)
 
 
 class TeleopJoystickNode(Node):
@@ -37,10 +30,10 @@ class TeleopJoystickNode(Node):
         )
 
         self.__key_publisher_hd = self.create_publisher(
-            Float32, "actuator/key/degree", 10
+            Float64, "actuator/key/degree", 10
         )
         self.__throttle_publisher_hd = self.create_publisher(
-            Float32, "actuator/thruster/percentage", 10
+            Float64, "actuator/thruster/percentage", 10
         )
         self.__rgbw_publisher_hd = self.create_publisher(
             RgbwLedColor, "actuator/rgbwled/color", 10
@@ -57,10 +50,10 @@ class TeleopJoystickNode(Node):
         self.__is_new_data = False
         self.__is_pub_active = False
 
-        self.__key_degree_msg = Float32()
+        self.__key_degree_msg = Float64()
         self.__key_degree_msg.data = self.__KEY_CENTER_DEGREE
 
-        self.__throttle_percentage_msg = Float32()
+        self.__throttle_percentage_msg = Float64()
         self.__throttle_percentage_msg.data = self.__THROTTLE_MIN_PERCENTAGE
 
         self.__rgbw_msg = RgbwLedColor()
