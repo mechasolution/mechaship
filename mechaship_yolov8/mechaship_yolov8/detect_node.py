@@ -1,5 +1,6 @@
 import time
 from os.path import join
+from platform import machine
 
 # ROS 2
 import rclpy
@@ -10,14 +11,18 @@ from rclpy.lifecycle.publisher import LifecyclePublisher
 from rclpy.parameter import Parameter
 from rclpy.qos import qos_profile_sensor_data
 
-# RKNN
-from mechaship_yolov8.utils.rknn_helper import RKNNHelper
-from rknnlite.api import RKNNLite
-
 # ROS 2 Messages and Services
 from sensor_msgs.msg import CompressedImage
 from std_msgs.msg import Bool
 from vision_msgs.msg import Detection2D, Detection2DArray, ObjectHypothesisWithPose
+
+# RKNN
+from utils.rknn_helper import RKNNHelper
+
+if machine() == "aarch64":  # SBC
+    from rknnlite.api import RKNNLite as rknn
+else:  # PC
+    from rknn.api import RKNN as rknn
 
 
 class DetectNode(LifecycleNode):
@@ -158,7 +163,7 @@ class DetectNode(LifecycleNode):
         self.log_debug(f"Activating {self.get_name()}")
 
         # RKNN Lite 불러오기
-        self.model = RKNNLite()
+        self.model = rknn()
 
         # RKNN model 불러오기
         self.log_debug("--> Load RKNN model")
