@@ -20,9 +20,9 @@ from vision_msgs.msg import Detection2D, Detection2DArray, ObjectHypothesisWithP
 from utils.rknn_helper import RKNNHelper
 
 if machine() == "aarch64":  # SBC
-    from rknnlite.api import RKNNLite as rknn
+    from rknnlite.api import RKNNLite as rknn  # type: ignore
 else:  # PC
-    from rknn.api import RKNN as rknn
+    from rknn.api import RKNN as rknn  # type: ignore
 
 
 class DetectNode(LifecycleNode):
