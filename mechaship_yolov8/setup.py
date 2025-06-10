@@ -26,7 +26,7 @@ setup(
         ),
         (
             os.path.join("share", package_name, "utils"),
-            glob(os.path.join("utils/*")),
+            glob(os.path.join("utils", "*.py")),
         ),
     ],
     install_requires=["setuptools"],
