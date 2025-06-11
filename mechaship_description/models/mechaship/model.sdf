@@ -294,11 +294,11 @@
         <visualize>true</visualize>
         <topic>image_raw</topic>
         <gz_frame_id>camera_link</gz_frame_id>
-        <pose>0 0 0 0 -1.5708 0</pose>
+        <pose>0 0 0 0 0 0</pose>
         <camera>
           <camera_info_topic>camera_info</camera_info_topic>
-          <optical_frame_id>camera_link</optical_frame_id>
-          <horizontal_fov>1.22</horizontal_fov>
+          <optical_frame_id>camera_info_link</optical_frame_id>
+          <horizontal_fov>0.8344</horizontal_fov>
           <image>
             <width>640</width>
             <height>480</height>
@@ -317,6 +317,15 @@
       </sensor>
     </link>
 
+    <!-- Camera Info -->
+    <joint name="camera_info_joint" type="fixed">
+      <parent>camera_link</parent>
+      <child>camera_info_link</child>
+      <pose relative_to="camera_link">0 0 0 1.5708 0 1.5708</pose>
+    </joint>
+
+    <link name="camera_info_link" />
+
     <!-- Key -->
     <joint name="key_joint" type="revolute">
       <parent>base_link</parent>
@@ -326,7 +335,7 @@
         <limit>
           <lower>1.0472</lower>
           <upper>2.0944</upper>
-          <effort>1.0</effort>
+          <effort>1.962</effort>
           <velocity>4.0</velocity>
         </limit>
       </axis>
