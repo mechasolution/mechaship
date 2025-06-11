@@ -252,10 +252,10 @@
     </joint>
 
     <link name="camera_link">
-      <pose>0.0433 -0.0165 0.313 0 0 0</pose>
+      <pose>0.0433 -0.0165 0.313 1.5708 0 1.5708</pose>
       <inertial>
         <mass>0.075</mass>
-        <pose>-0.01 0.0165 0 0 0 0</pose>
+        <pose>0.0165 0 -0.008 -1.5708 -1.5708 0</pose>
         <inertia>
           <ixx>0.00003181</ixx>
           <ixy>-0.00000011</ixy>
@@ -266,7 +266,7 @@
         </inertia>
       </inertial>
       <collision name="camera_collision">
-        <pose>-0.01 0.0165 0 0 0 0</pose>
+        <pose>0.0165 0 -0.008 -1.5708 -1.5708 0</pose>
         <geometry>
           <box>
             <size>0.027 0.071 0.031</size>
@@ -274,6 +274,7 @@
         </geometry>
       </collision>
       <visual name="camera_visual">
+        <pose>0 0 0 -1.5708 -1.5708 0</pose>
         <!-- White Color -->
         <material>
           <ambient>1.0 1.0 1.0 1.0</ambient>
@@ -294,10 +295,10 @@
         <visualize>true</visualize>
         <topic>image_raw</topic>
         <gz_frame_id>camera_link</gz_frame_id>
-        <pose>0 0 0 0 0 0</pose>
+        <pose>0 0 0 -1.5708 -1.5708 0</pose>
         <camera>
           <camera_info_topic>camera_info</camera_info_topic>
-          <optical_frame_id>camera_info_link</optical_frame_id>
+          <optical_frame_id>camera_link</optical_frame_id>
           <horizontal_fov>0.8344</horizontal_fov>
           <image>
             <width>640</width>
@@ -316,15 +317,6 @@
         </camera>
       </sensor>
     </link>
-
-    <!-- Camera Info -->
-    <joint name="camera_info_joint" type="fixed">
-      <parent>camera_link</parent>
-      <child>camera_info_link</child>
-      <pose relative_to="camera_link">0 0 0 1.5708 0 1.5708</pose>
-    </joint>
-
-    <link name="camera_info_link" />
 
     <!-- Key -->
     <joint name="key_joint" type="revolute">
