@@ -1,13 +1,19 @@
 import time
 from os.path import join
-from platform import machine
+
+# RKNN
+IS_SBC = True
+try:
+    from rknnlite.api import RKNNLite  # type: ignore
+    from utils.rknn_helper import RKNNHelper
+except ImportError:
+    IS_SBC = False
 
 # ROS 2
 import rclpy
 from ament_index_python.packages import get_package_share_directory
 from cv_bridge import CvBridge
-from rclpy.lifecycle import LifecycleNode, LifecycleState, TransitionCallbackReturn
-from rclpy.lifecycle.publisher import LifecyclePublisher
+from rclpy.lifecycle import Node, Publisher, State, TransitionCallbackReturn
 from rclpy.parameter import Parameter
 from rclpy.qos import qos_profile_sensor_data
 
@@ -16,28 +22,20 @@ from sensor_msgs.msg import CompressedImage
 from std_msgs.msg import Bool
 from vision_msgs.msg import Detection2D, Detection2DArray, ObjectHypothesisWithPose
 
-# RKNN
-from utils.rknn_helper import RKNNHelper
 
-if machine() == "aarch64":  # SBC
-    from rknnlite.api import RKNNLite as rknn  # type: ignore
-else:  # PC
-    from rknn.api import RKNN as rknn  # type: ignore
-
-
-class DetectNode(LifecycleNode):
+class DetectNode(Node):
     def __init__(self) -> None:
         super().__init__(
             "detect_node", automatically_declare_parameters_from_overrides=True
         )
 
-    # 디버그 메세지 출력 함수
-    def log_debug(self, message: str) -> None:
-        self.get_logger().debug(message)
-
     # <on_configure> 노드를 생성할 때 / 변수 선언
-    def on_configure(self, state: LifecycleState) -> TransitionCallbackReturn:
-        self.log_debug(f"Configuring {self.get_name()}")
+    def on_configure(self, state: State) -> TransitionCallbackReturn:
+        self.get_logger().debug(f"Configuring {self.get_name()}")
+
+        if not IS_SBC:
+            self.get_logger().fatal("SBC에서 실행해주시기 바랍니다.")
+            return TransitionCallbackReturn.ERROR
 
         # 파라미터 가져오기
         self.image_topic = (
@@ -116,20 +114,20 @@ class DetectNode(LifecycleNode):
             .bool_value
         )
 
-        self.log_debug(f"image_topic : {self.image_topic}")
-        self.log_debug(f"rknn_model : {self.rknn_model}")
-        self.log_debug(f"label : {self.label}")
-        self.log_debug(f"img_size : {self.img_size}")
-        self.log_debug(f"conf : {_conf}")
-        self.log_debug(f"iou : {_iou}")
-        self.log_debug(f"fps : {_fps}")
-        self.log_debug(f"enable : {self.enable}")
+        self.get_logger().info(f"image_topic : {self.image_topic}")
+        self.get_logger().info(f"rknn_model : {self.rknn_model}")
+        self.get_logger().info(f"label : {self.label}")
+        self.get_logger().info(f"img_size : {self.img_size}")
+        self.get_logger().info(f"conf : {_conf}")
+        self.get_logger().info(f"iou : {_iou}")
+        self.get_logger().info(f"fps : {_fps}")
+        self.get_logger().info(f"enable : {self.enable}")
 
         # RKNN 핼퍼 불러오기 (rknn_helper.py)
         self.rknn_helper = RKNNHelper(_conf, _iou, self.img_size)
 
         # 객체 인식 결과 Publisher 생성
-        self.detection_publisher: LifecyclePublisher = self.create_lifecycle_publisher(
+        self.detection_publisher: Publisher = self.create_lifecycle_publisher(
             Detection2DArray, "detections", qos_profile_sensor_data
         )
 
@@ -147,9 +145,6 @@ class DetectNode(LifecycleNode):
         self.compressed_image = CompressedImage()
         self.timer = self.create_timer(1 / _fps, self.timer_callback)
 
-        # 모든 요소(publisher, subscriber 등) 상태 전환 >> <on_configure>
-        super().on_configure(state)
-
         # 상태 전환 결과 반환 (SUCCESS)
         return TransitionCallbackReturn.SUCCESS
 
@@ -159,28 +154,28 @@ class DetectNode(LifecycleNode):
         self.enable = enable_msg.data
 
     # <on_activate> 노드를 실행할 때 / 시스템 구성
-    def on_activate(self, state: LifecycleState) -> TransitionCallbackReturn:
-        self.log_debug(f"Activating {self.get_name()}")
+    def on_activate(self, state: State) -> TransitionCallbackReturn:
+        self.get_logger().debug(f"Activating {self.get_name()}")
 
         # RKNN Lite 불러오기
-        self.model = rknn()
+        self.model = RKNNLite()
 
         # RKNN model 불러오기
-        self.log_debug("--> Load RKNN model")
+        self.get_logger().info("--> Load RKNN model")
         model_full_path = join(
             get_package_share_directory(__package__), "model", self.rknn_model
         )
         ret = self.model.load_rknn(model_full_path)
         if ret != 0:  # 실패할 경우 예외 발생
             raise RuntimeError("Load RKNN model failed!")
-        self.log_debug("done")
+        self.get_logger().info("done")
 
         # 런타임 환경 초기화
-        self.log_debug("--> Init runtime environment")
+        self.get_logger().info("--> Init runtime environment")
         ret = self.model.init_runtime(core_mask=RKNNLite.NPU_CORE_0)
         if ret != 0:  # 실패할 경우 예외 발생
             raise RuntimeError("Init runtime environment failed!")
-        self.log_debug("done")
+        self.get_logger().info("done")
 
         # 라벨 파일을 읽어 리스트로 변환
         label_full_path = join(
@@ -197,15 +192,12 @@ class DetectNode(LifecycleNode):
             qos_profile_sensor_data,
         )
 
-        # 모든 요소(publisher, subscriber 등) 상태 전환 >> <on_activate>
-        super().on_activate(state)
-
-        # 상태 전환 결과 반환 (SUCCESS)
-        return TransitionCallbackReturn.SUCCESS
+        # 상태 전환 결과 반환
+        return super().on_activate(state)
 
     # <on_deactivate> 노드를 중지할 때 / 시스템 정지
-    def on_deactivate(self, state: LifecycleState) -> TransitionCallbackReturn:
-        self.log_debug(f"Deactivating {self.get_name()}")
+    def on_deactivate(self, state: State) -> TransitionCallbackReturn:
+        self.get_logger().debug(f"Deactivating {self.get_name()}")
 
         # RKNN 반환하기
         self.model.release()
@@ -214,15 +206,14 @@ class DetectNode(LifecycleNode):
         self.destroy_subscription(self.image_subscription)
         self.image_subscription = None
 
-        # 모든 요소(publisher, subscriber 등) 상태 전환 >> <on_deactivate>
-        super().on_deactivate(state)
-
-        # 상태 전환 결과 반환 (SUCCESS)
-        return TransitionCallbackReturn.SUCCESS
+        # 상태 전환 결과 반환
+        return super().on_deactivate(state)
 
     # <on_cleanup> 노드를 초기화할 때 / 시스템 초기화
-    def on_cleanup(self, state: LifecycleState) -> TransitionCallbackReturn:
-        self.log_debug(f"Cleaning up {self.get_name()}")
+    def on_cleanup(self, state: State) -> TransitionCallbackReturn:
+        self.get_logger().debug(f"Cleaning up {self.get_name()}")
+
+        self.destroy_timer(self.timer)
 
         # 객체 인식 결과 Publisher 반환하기
         self.destroy_publisher(self.detection_publisher)
@@ -231,18 +222,21 @@ class DetectNode(LifecycleNode):
         self.destroy_subscription(self.detection_enable_subscription)
         self.detection_enable_subscription = None
 
-        # 모든 요소(publisher, subscriber 등) 상태 전환 >> <on_cleanup>
-        super().on_cleanup(state)
-
         # 상태 전환 결과 반환 (SUCCESS)
         return TransitionCallbackReturn.SUCCESS
 
     # <on_shutdown> 노드를 삭제할 때
-    def on_shutdown(self, state: LifecycleState) -> TransitionCallbackReturn:
-        self.log_debug(f"Shutting down {self.get_name()}")
+    def on_shutdown(self, state: State) -> TransitionCallbackReturn:
+        self.get_logger().debug(f"Shutting down {self.get_name()}")
 
-        # 모든 요소(publisher, subscriber 등) 상태 전환 >> <on_shutdown>
-        super().on_shutdown(state)
+        self.destroy_timer(self.timer)
+
+        # 객체 인식 결과 Publisher 반환하기
+        self.destroy_publisher(self.detection_publisher)
+
+        # 객체 인식 실행 여부 Subscription 반환하기
+        self.destroy_subscription(self.detection_enable_subscription)
+        self.detection_enable_subscription = None
 
         # 상태 전환 결과 반환 (SUCCESS)
         return TransitionCallbackReturn.SUCCESS
@@ -274,7 +268,7 @@ class DetectNode(LifecycleNode):
         input_image = self.rknn_helper.expand_dims(padded_image)
 
         # 객체 탐지 실행
-        self.log_debug("--> Running model")
+        self.get_logger().debug("--> Running model")
         start_time = time.time()
         outputs = self.model.inference(inputs=[input_image])
         finish_time = time.time()
@@ -285,7 +279,7 @@ class DetectNode(LifecycleNode):
         if boxes is None or classes is None or scores is None:
             return
 
-        self.log_debug(f"detect Time: {(finish_time - start_time)}")
+        self.get_logger().debug(f"detect Time: {(finish_time - start_time)}")
 
         # Detection2DArray에 탐지 결과 담기
         detections_msg = Detection2DArray()
@@ -322,11 +316,12 @@ class DetectNode(LifecycleNode):
 def main(args=None):
     rclpy.init(args=args)
     node = DetectNode()
-    node.trigger_configure()
-    node.trigger_activate()
 
     try:
-        rclpy.spin(node)
+        if node.trigger_configure() == TransitionCallbackReturn.SUCCESS:
+            node.trigger_activate()
+
+            rclpy.spin(node)
 
     except KeyboardInterrupt:
         node.get_logger().info("Keyboard Interrupt (SIGINT)")
