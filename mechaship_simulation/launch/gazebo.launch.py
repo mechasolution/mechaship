@@ -75,7 +75,6 @@ def generate_launch_description():
         parameters=[
             {
                 "config_file": gazebo_bridge_parameter,
-                "qos_overrides./tf_static.publisher.durability": "transient_local",
                 "qos_overrides./scan.publisher.reliability": "best_effort",
                 "qos_overrides./scan.publisher.durability": "volatile",
             }
