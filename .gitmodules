@@ -17,3 +17,6 @@
 [submodule "wtrtk_ros2_driver"]
 	path = wtrtk_ros2_driver
 	url = https://github.com/mechasolution/wtrtk_ros2_driver
+[submodule "ros_wit_imu_node"]
+	path = ros_wit_imu_node
+	url = https://github.com/mechasolution/ros_wit_imu_node
