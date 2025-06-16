@@ -111,12 +111,12 @@ def generate_launch_description():
         "mechaship_imu_parameter", default_value=mechaship_imu_parameter
     )
     imu_driver_node = Node(
-        executable="iahrs_ros2_driver_node",
-        package="iahrs_ros2_driver",
-        name="iahrs_ros2_driver",
+        executable="wit_imu_node",
+        package="wit_imu_driver",
+        name="wit_imu_node",
         namespace="",
         parameters=[mechaship_imu_parameter],
-        remappings=[("imu/data", "imu"), ("imu/mag", "mag")],
+        remappings=[("data_raw", "imu")],
         emulate_tty=True,
         # output="screen", # debug
     )
