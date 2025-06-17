@@ -22,7 +22,7 @@
   <exec_depend>ublox_gps</exec_depend>
   <exec_depend>usb_cam</exec_depend>
   <exec_depend>ydlidar_ros2_driver</exec_depend>
-  <exec_depend>iahrs_ros2_driver</exec_depend>
+  <exec_depend>ros_wit_imu_node</exec_depend>
   <exec_depend>mechaship_description</exec_depend>
   <exec_depend>rf2o_laser_odometry</exec_depend>
 
