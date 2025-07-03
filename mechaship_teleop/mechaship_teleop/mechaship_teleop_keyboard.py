@@ -9,7 +9,8 @@ import rclpy
 from std_msgs.msg import Float64
 
 THROTTLE_TOPIC = "actuator/thruster/percentage"
-KEY_TOPIC = "actuator/key/degree"
+KEY_RAD_TOPIC = "actuator/key/radian"  # for gazebo only
+KEY_DEGREE_TOPIC = "actuator/key/degree"
 
 THROTTLE_STEP_SIZE = 5.0
 KEY_STEP_SIZE = 5.0
@@ -60,7 +61,8 @@ def main():
     rclpy.init()
     node = rclpy.create_node("teleop_keyboard")
     throttle_publisher = node.create_publisher(Float64, THROTTLE_TOPIC, 10)
-    key_publisher = node.create_publisher(Float64, KEY_TOPIC, 10)
+    key_rad_publisher = node.create_publisher(Float64, KEY_RAD_TOPIC, 10)
+    key_degree_publisher = node.create_publisher(Float64, KEY_DEGREE_TOPIC, 10)
 
     target_throttle = 0.0
     target_key = 90.0
@@ -97,9 +99,12 @@ def main():
             throttle_publisher.publish(throttle_msg)
 
             # publish key angle (radians)
-            key_msg = Float64()
-            key_msg.data = math.radians(target_key)
-            key_publisher.publish(key_msg)
+            key_rad_msg = Float64()
+            key_degree_msg = Float64()
+            key_rad_msg.data = math.radians(target_key)
+            key_degree_msg.data = target_key
+            key_rad_publisher.publish(key_rad_msg)
+            key_degree_publisher.publish(key_degree_msg)
 
             time.sleep(0.05)
 
@@ -114,9 +119,12 @@ def main():
         throttle_msg.data = 0.0
         throttle_publisher.publish(throttle_msg)
 
-        key_msg = Float64()
-        key_msg.data = math.radians(90.0)
-        key_publisher.publish(key_msg)
+        key_rad_msg = Float64()
+        key_degree_msg = Float64()
+        key_rad_msg.data = math.radians(90.0)
+        key_degree_msg.data = 90.0
+        key_rad_publisher.publish(key_rad_msg)
+        key_degree_publisher.publish(key_degree_msg)
 
         termios.tcsetattr(sys.stdin, termios.TCSADRAIN, settings)
 
