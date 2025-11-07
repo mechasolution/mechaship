@@ -52,16 +52,42 @@ def generate_launch_description():
         "mechaship_gps_parameter", default_value=mechaship_gps_parameter
     )
     gps_driver_node = Node(
-        executable="ublox_gps_node",
-        package="ublox_gps",
-        name="ublox_gps_node",
+        executable="wtrtk_ros2_driver",
+        package="wtrtk_ros2_driver",
+        name="wtrtk_ros2_driver",
         namespace="",
         parameters=[mechaship_gps_parameter],
-        remappings=[
-            ("diagnostics", "gps/diagnostics"),
-            ("fix", "gps/fix"),
-            ("fix_velocity", "gps/fix_velocity"),
-        ],
+        emulate_tty=True,
+        # output="screen", # debug
+    )
+
+    # GPS NMEA 파서
+    gps_nmea_parser_node = Node(
+        executable="nmea_topic_driver",
+        package="nmea_navsat_driver",
+        name="nmea_topic_driver",
+        namespace="",
+        parameters=[],
+        remappings=[("fix", "gps/fix")],
+        emulate_tty=True,
+        # output="screen", # debug
+    )
+
+    # GPS NTRIP 클라이언트
+    ntrip_parameter = LaunchConfiguration(
+        "ntrip_parameter",
+        default=os.path.join(pkg_share_dir_param, "ntrip_info.yaml"),
+    )
+    ntrip_client_launch_arg = DeclareLaunchArgument(
+        "ntrip_parameter", default_value=ntrip_parameter
+    )
+    ntrip_client_node = Node(
+        executable="ntrip_ros.py",
+        package="ntrip_client",
+        name="ntrip_client",
+        namespace="",
+        parameters=[ntrip_parameter],
+        remappings=[("fix", "gps/fix")],
         emulate_tty=True,
         # output="screen", # debug
     )
@@ -139,6 +165,9 @@ def generate_launch_description():
             actuator_cfg_node,
             gps_driver_launch_arg,
             gps_driver_node,
+            gps_nmea_parser_node,
+            ntrip_client_launch_arg,
+            ntrip_client_node,
             usb_camera_launch_arg,
             usb_camera_node,
             lidar_driver_launch_arg,

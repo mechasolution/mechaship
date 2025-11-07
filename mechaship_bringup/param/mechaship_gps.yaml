@@ -1,23 +1,16 @@
-ublox_gps_node:
+wtrtk_ros2_driver:
   ros__parameters:
-    debug: 0
+    serial_port: "/dev/ttyGPS"
+    serial_baudrate: 115200
 
-    device: /dev/ttyGPS
-    frame_id: gps_link
-    rate: 1.0
-    nav_rate: 1
+    publish_nmea_topic: "nmea_sentence"
+    publish_nmea_topic_frame_id: "gps_link"
 
-    tmode3: 1
-    sv_in:
-      reset: True
+    subscribe_rtcm_topic: "rtcm" # if empty, driver do not subscribes rtcm topic
 
-      min_dur: 300
-      acc_lim: 3.0
-
-    inf:
-      all: false
-
-    publish:
-      aid:
-        all: false
-      nmea: true
+    # update_rate_1hz: True
+    # update_rate_2hz: True
+    # update_rate_5hz: True
+    update_rate_10hz: True
+    # update_rate_20hz: True
+    # update_rate_50hz: False # only WTRTK-980 supports it
