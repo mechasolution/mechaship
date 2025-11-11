@@ -205,13 +205,21 @@ class ActuatorEnableNode(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = ActuatorEnableNode()
 
-    executor = MultiThreadedExecutor()
-    executor.add_node(node)
-    executor.spin()
+    node = None
 
-    rclpy.shutdown()
+    try:
+        node = ActuatorEnableNode()
+
+        executor = MultiThreadedExecutor()
+        executor.add_node(node)
+        executor.spin()
+
+    except KeyboardInterrupt:
+        pass
+    finally:
+        if node is not None:
+            node.destroy_node()
 
 
 if __name__ == "__main__":
