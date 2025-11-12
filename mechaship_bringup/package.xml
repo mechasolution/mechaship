@@ -17,7 +17,6 @@
   <exec_depend>ament_index_python</exec_depend>
 
   <!-- Other ROS package dependencies -->
-  <exec_depend>micro_ros_agent</exec_depend>
   <exec_depend>mechaship_system</exec_depend>
   <exec_depend>usb_cam</exec_depend>
   <exec_depend>iahrs_ros2_driver</exec_depend>
