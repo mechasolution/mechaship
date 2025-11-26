@@ -1,7 +1,7 @@
 import rclpy
-from mechaship_bt.bt.actions import *
-from mechaship_bt.bt.conditions import *
-from mechaship_bt.bt.sensors import *
+from bt.actions import *
+from bt.conditions import *
+from bt.sensors import *
 from py_trees.common import ParallelPolicy
 from py_trees.composites import Parallel, Sequence
 from py_trees.display import unicode_blackboard, unicode_tree

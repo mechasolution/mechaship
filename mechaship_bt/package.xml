@@ -23,6 +23,7 @@
   <exec_depend>geometry_msgs</exec_depend>
   <exec_depend>py_trees</exec_depend>
   <exec_depend>py_trees_ros</exec_depend>
+  <exec_depend>py_trees_ros_viewer</exec_depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
