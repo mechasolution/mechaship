@@ -24,6 +24,10 @@ setup(
             os.path.join("share", package_name, "model"),
             glob(os.path.join("model/*")),
         ),
+        (
+            os.path.join("share", package_name, "utils"),
+            glob(os.path.join("utils", "*.py")),
+        ),
     ],
     install_requires=["setuptools"],
     zip_safe=True,

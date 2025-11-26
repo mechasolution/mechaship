@@ -16,7 +16,7 @@ def generate_launch_description():
     world_path = os.path.join(
         get_package_share_directory("mechaship_simulation"),
         "worlds",
-        "empty.world",
+        f"{os.environ.get("WORLD_NAME", "empty")}.world",
     )
 
     # 로봇 형상 정보 publish
@@ -42,23 +42,14 @@ def generate_launch_description():
     )
 
     # Gazebo에 로봇 불러오기
-    spawn_entity_node = Node(
-        executable="create",
-        package="ros_gz_sim",
-        name="create",
-        namespace="",
-        parameters=[
-            {
-                "world": "empty",
-                "topic": "robot_description",
-                "name": "mechaship",
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.02,
-            }
-        ],
-        emulate_tty=True,
-        # output="screen", # debug
+    spawn_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(
+                get_package_share_directory("mechaship_simulation"),
+                "launch",
+                "spawn.launch.py",
+            )
+        )
     )
 
     # Gazebo ROS 브릿지
@@ -75,7 +66,6 @@ def generate_launch_description():
         parameters=[
             {
                 "config_file": gazebo_bridge_parameter,
-                "qos_overrides./tf_static.publisher.durability": "transient_local",
                 "qos_overrides./scan.publisher.reliability": "best_effort",
                 "qos_overrides./scan.publisher.durability": "volatile",
             }
@@ -104,7 +94,7 @@ def generate_launch_description():
             ),
             robot_state_publisher,
             gazebo_launch,
-            spawn_entity_node,
+            spawn_launch,
             gazebo_bridge_node,
             gazebo_image_bridge_node,
         ]
