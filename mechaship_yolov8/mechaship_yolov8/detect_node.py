@@ -259,7 +259,7 @@ class DetectNode(Node):
             return
 
         # compressed image를 OpenCV 이미지로 변환
-        origin_image = self.br.compressed_imgmsg_to_cv2(self.compressed_image)
+        origin_image = self.br.compressed_imgmsg_to_cv2(self.compressed_image, "rgb8")
 
         # 비율에 맞춰 이미지 리사이즈
         padded_image = self.rknn_helper.resize_with_padding(origin_image)
