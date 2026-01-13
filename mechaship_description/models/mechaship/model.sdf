@@ -407,6 +407,12 @@
           <damping>0.1</damping>
         </dynamics>
       </axis>
+      <limit>
+        <lower>0.0</lower>
+        <upper>0.0</upper>
+        <effort>0.0</effort>
+        <velocity>0.0</velocity>
+      </limit>
     </joint>
 
     <link name="thruster_link">
