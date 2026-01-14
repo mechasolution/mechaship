@@ -93,8 +93,8 @@ def generate_launch_description():
                 description="Use simulation (Gazebo) clock if true",
             ),
             rf2o_laser_odometry_node,
-            navsat_transform_launch_arg,
-            navsat_transform_node,
+            # navsat_transform_launch_arg,
+            # navsat_transform_node,
             ekf_filter_launch_arg,
             ekf_filter_node,
         ]
