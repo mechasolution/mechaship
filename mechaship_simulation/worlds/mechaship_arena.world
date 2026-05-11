@@ -1,0 +1,183 @@
+<?xml version="1.0"?>
+<sdf version="1.8">
+  <world name="mechaship_arena">
+
+    <!-- 물리 엔진 -->
+    <physics name="4ms" type="dart">
+      <max_step_size>0.004</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
+
+    <!-- Gazebo 기본 플러그인 -->
+    <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics" />
+    <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands" />
+    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster" />
+
+    <!-- GPS -->
+    <plugin filename="gz-sim-navsat-system" name="gz::sim::systems::NavSat" />
+
+    <!-- IMU -->
+    <plugin filename="gz-sim-imu-system" name="gz::sim::systems::Imu" />
+
+    <!-- LiDAR -->
+    <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+
+    <!-- 지구 좌표계 설정 -->
+    <spherical_coordinates>
+      <surface_model>EARTH_WGS84</surface_model>
+      <world_frame_orientation>ENU</world_frame_orientation>
+      <latitude_deg>37.5665</latitude_deg>
+      <longitude_deg>126.9780</longitude_deg>
+      <elevation>0.0</elevation>
+      <heading_deg>0.0</heading_deg>
+    </spherical_coordinates>
+
+    <!-- 조명(태양) 설정 -->
+    <light type="directional" name="sun">
+      <cast_shadows>true</cast_shadows>
+      <pose>0 0 10 0 0 0</pose>
+      <diffuse>0.8 0.8 0.8 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <attenuation>
+        <range>1000</range>
+        <constant>0.9</constant>
+        <linear>0.01</linear>
+        <quadratic>0.001</quadratic>
+      </attenuation>
+      <direction>-0.5 0.1 -0.9</direction>
+    </light>
+
+    <!-- 파도 플러그인 (wavefield publisher) -->
+    <plugin filename="libPublisherPlugin.so" name="vrx::PublisherPlugin">
+      <message type="gz.msgs.Param" topic="/vrx/wavefield/parameters" every="2.0"><![CDATA[
+        params {
+          key: "direction"
+          value {
+            type: DOUBLE
+            double_value: 0.0
+          }
+        }
+        params {
+          key: "gain"
+          value {
+            type: DOUBLE
+            double_value: 0.08
+          }
+        }
+        params {
+          key: "period"
+          value {
+            type: DOUBLE
+            double_value: 7
+          }
+        }
+        params {
+          key: "steepness"
+          value {
+            type: DOUBLE
+            double_value: 0
+          }
+        }
+      ]]></message>
+    </plugin>
+
+    <!-- 장면 설정 -->
+    <scene>
+      <sky />
+      <grid>false</grid>
+      <ambient>1.0 1.0 1.0</ambient>
+      <background>0.8 0.8 0.8</background>
+    </scene>
+
+    <!-- 경기장 -->
+    <model name="arena">
+      <static>true</static>
+      <pose>0 0 0 0 0 0</pose>
+      <link name="arena_link">
+        <collision name="arena_collision">
+          <geometry>
+            <mesh>
+              <uri>meshes/mechaship_arena.dae</uri>
+            </mesh>
+          </geometry>
+        </collision>
+        <visual name="arena_visual">
+          <geometry>
+            <mesh>
+              <uri>meshes/mechaship_arena.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+      </link>
+    </model>
+
+    <!-- 파도 시각화 모델 (수면 기준 z=0.4) -->
+    <model name="waves">
+      <static>true</static>
+      <pose>0 0 0.4 0 0 0</pose>
+      <link name="link">
+        <visual name="wave_visual">
+          <geometry>
+            <plane>
+              <normal>0 0 1.0</normal>
+              <size>10.0 25.0</size>
+            </plane>
+          </geometry>
+          <plugin filename="libWaveVisual.so" name="vrx::WaveVisual">
+            <shader>
+              <vertex>materials/programs/GerstnerWaves_vs_330.glsl</vertex>
+              <fragment>materials/programs/GerstnerWaves_fs_330.glsl</fragment>
+              <parameters>
+                <!-- 텍스처 -->
+                <rescale>0.3</rescale>
+                <bumpScale>8 20</bumpScale>
+                <bumpSpeed>0.005 0.0</bumpSpeed>
+
+                <!-- 조명 -->
+                <hdrMultiplier>0.6</hdrMultiplier>
+                <fresnelPower>5.0</fresnelPower>
+
+                <!-- 색상 -->
+                <shallowColor>0.30 0.65 0.80 0.4</shallowColor>
+                <deepColor>0.15 0.50 0.70 0.75</deepColor>
+              </parameters>
+            </shader>
+            <wavefield>
+              <topic>/vrx/wavefield/parameters</topic>
+            </wavefield>
+          </plugin>
+          <visibility_flags>8</visibility_flags>
+        </visual>
+      </link>
+    </model>
+
+    <!-- 지면 -->
+    <model name="ground_plane">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+            </plane>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
+          </geometry>
+          <material>
+            <ambient>0.9 0.9 0.9 1</ambient>
+            <diffuse>0.9 0.9 0.9 1</diffuse>
+            <specular>0.3 0.3 0.3 1</specular>
+          </material>
+        </visual>
+      </link>
+    </model>
+  </world>
+</sdf>
