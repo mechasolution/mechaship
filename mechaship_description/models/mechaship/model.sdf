@@ -406,13 +406,13 @@
         <dynamics>
           <damping>0.1</damping>
         </dynamics>
+        <limit>
+          <lower>0.0</lower>
+          <upper>0.0</upper>
+          <effort>0.0</effort>
+          <velocity>0.0</velocity>
+        </limit>
       </axis>
-      <limit>
-        <lower>0.0</lower>
-        <upper>0.0</upper>
-        <effort>0.0</effort>
-        <velocity>0.0</velocity>
-      </limit>
     </joint>
 
     <link name="thruster_link">
@@ -483,12 +483,32 @@
       <joint_name>thruster_joint</joint_name>
     </plugin>
 
+    <!-- Wind -->
+    <plugin filename="libUSVWind.so" name="vrx::USVWind">
+      <wind_obj>
+        <name>mechaship</name>
+        <link_name>mechaship::base_link</link_name>
+        <coeff_vector>.2 .2 .1</coeff_vector>
+      </wind_obj>
+      <!-- Wind -->
+      <wind_direction>240</wind_direction>
+      <!-- in degrees -->
+      <wind_mean_velocity>1.0</wind_mean_velocity>
+      <var_wind_gain_constants>0.2</var_wind_gain_constants>
+      <var_wind_time_constants>2.0</var_wind_time_constants>
+      <random_seed>10</random_seed>
+      <!-- set to zero/empty to randomize -->
+      <update_rate>10</update_rate>
+      <topic_wind_speed>/vrx/debug/wind/speed</topic_wind_speed>
+      <topic_wind_direction>/vrx/debug/wind/direction</topic_wind_direction>
+    </plugin>
+
     <!-- Left hull -->
     <plugin filename="libSurface.so" name="vrx::Surface">
       <link_name>base_link</link_name>
       <hull_length>0.751</hull_length>
       <hull_radius>0.09</hull_radius>
-      <fluid_level>0.03</fluid_level>
+      <fluid_level>0.43</fluid_level>
       <points>
         <point>0.411 0.24 -0.06</point>
         <point>-0.34 0.06 -0.06</point>
@@ -503,7 +523,7 @@
       <link_name>base_link</link_name>
       <hull_length>0.751</hull_length>
       <hull_radius>0.09</hull_radius>
-      <fluid_level>0.03</fluid_level>
+      <fluid_level>0.43</fluid_level>
       <points>
         <point>0.411 -0.06 -0.06</point>
         <point>-0.34 -0.24 -0.06</point>
@@ -522,8 +542,8 @@
       <yDotV>0.1</yDotV>
       <zDotW>8.0</zDotW>
 
-      <kDotP>0.0</kDotP>  <!-- Roll (X)-->
-      <mDotQ>0.0</mDotQ>  <!-- Pitch (y)-->
+      <kDotP>0.05</kDotP> <!-- Roll (X)-->
+      <mDotQ>0.1</mDotQ>  <!-- Pitch (y)-->
       <nDotR>0.5</nDotR>  <!-- Yaw (z)-->
 
       <!-- Linear drag -->
@@ -543,6 +563,5 @@
       <mQQ>3.0</mQQ> <!-- Pitch (y)-->
       <nRR>0.1</nRR> <!-- Yaw (z)-->
     </plugin>
-
   </model>
 </sdf>

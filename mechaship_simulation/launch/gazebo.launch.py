@@ -19,6 +19,13 @@ def generate_launch_description():
         f"{os.environ.get("WORLD_NAME", "empty")}.world",
     )
 
+    # config 파일 경로
+    gui_config_path = os.path.join(
+        get_package_share_directory("mechaship_simulation"),
+        "param",
+        "mechaship_gui.config",
+    )
+
     # 로봇 형상 정보 publish
     robot_state_publisher = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -38,7 +45,10 @@ def generate_launch_description():
                 get_package_share_directory("ros_gz_sim"), "launch", "gz_sim.launch.py"
             )
         ),
-        launch_arguments={"gz_args": world_path, "on_exit_shutdown": "true"}.items(),
+        launch_arguments={
+            "gz_args": f"{world_path} --gui-config {gui_config_path}",
+            "on_exit_shutdown": "true",
+        }.items(),
     )
 
     # Gazebo에 로봇 불러오기

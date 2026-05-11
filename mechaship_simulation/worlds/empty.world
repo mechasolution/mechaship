@@ -49,26 +49,6 @@
       <direction>-0.5 0.1 -0.9</direction>
     </light>
 
-    <!-- 바람 플러그인 -->
-    <plugin filename="libUSVWind.so" name="vrx::USVWind">
-      <wind_obj>
-        <name>mechaship</name>
-        <link_name>mechaship::base_link</link_name>
-        <coeff_vector>.2 .2 .1</coeff_vector>
-      </wind_obj>
-      <!-- Wind -->
-      <wind_direction>240</wind_direction>
-      <!-- in degrees -->
-      <wind_mean_velocity>1.0</wind_mean_velocity>
-      <var_wind_gain_constants>0.2</var_wind_gain_constants>
-      <var_wind_time_constants>2.0</var_wind_time_constants>
-      <random_seed>10</random_seed>
-      <!-- set to zero/empty to randomize -->
-      <update_rate>10</update_rate>
-      <topic_wind_speed>/vrx/debug/wind/speed</topic_wind_speed>
-      <topic_wind_direction>/vrx/debug/wind/direction</topic_wind_direction>
-    </plugin>
-
     <!-- 파도 플러그인 (wavefield publisher) -->
     <plugin filename="libPublisherPlugin.so" name="vrx::PublisherPlugin">
       <message type="gz.msgs.Param" topic="/vrx/wavefield/parameters" every="2.0"><![CDATA[
@@ -113,7 +93,7 @@
 
     <!-- 부표 1 -->
     <model name="buoy1">
-      <pose>2 0 0.1 0 0 0</pose>
+      <pose>2 0 0.5 0 0 0</pose>
       <link name="buoy1_link">
         <inertial>
           <mass>5</mass>
@@ -152,7 +132,7 @@
       </link>
       <plugin name="vrx::PolyhedraBuoyancyDrag" filename="libPolyhedraBuoyancyDrag.so">
         <fluid_density>1000</fluid_density>
-        <fluid_level>0.0</fluid_level>
+        <fluid_level>0.4</fluid_level>
         <linear_drag>30.0</linear_drag>
         <angular_drag>5.0</angular_drag>
         <buoyancy name="buoy1_collision">
@@ -173,7 +153,7 @@
 
     <!-- 부표 2 -->
     <model name="buoy2">
-      <pose>0 2 0.1 0 0 0</pose>
+      <pose>0 2 0.5 0 0 0</pose>
       <link name="buoy2_link">
         <inertial>
           <mass>5</mass>
@@ -212,7 +192,7 @@
       </link>
       <plugin name="vrx::PolyhedraBuoyancyDrag" filename="libPolyhedraBuoyancyDrag.so">
         <fluid_density>1000</fluid_density>
-        <fluid_level>0.0</fluid_level>
+        <fluid_level>0.4</fluid_level>
         <linear_drag>30.0</linear_drag>
         <angular_drag>5.0</angular_drag>
         <buoyancy name="buoy2_collision">
@@ -231,10 +211,11 @@
       </plugin>
     </model>
 
+    <!-- 파도 시각화 모델 (수면 기준 z=0.4) -->
     <include>
       <name>Coast Waves</name>
-      <pose>0 0 0 0 0 0</pose>
-      <uri>coast_waves</uri>
+      <pose>0 0 0.4 0 0 0</pose>
+      <uri>model://coast_waves</uri>
     </include>
   </world>
 </sdf>

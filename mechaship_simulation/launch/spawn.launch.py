@@ -16,9 +16,10 @@ def generate_launch_description():
                 "world": os.environ.get("WORLD_NAME", "empty"),
                 "topic": "robot_description",
                 "name": "mechaship",
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.02,
+                "x": 4.5,
+                "y": -12.0,
+                "z": 0.5,
+                "Y": 3.14,
             }
         ],
         emulate_tty=True,
