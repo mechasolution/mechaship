@@ -4,7 +4,7 @@
   <name>mechaship_teleop</name>
   <version>1.0.0</version>
   <description>ROS 2 package for MechaShip teleoperation.</description>
-  <maintainer email="techms5499@gmail.com">Mechasolution</maintainer>
+  <maintainer email="tech@mechasolution.com">Mechasolution</maintainer>
   <license>Apache-2.0</license>
   <author email="max@mechasolution.com">Max Cha</author>
 

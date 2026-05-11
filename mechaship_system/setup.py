@@ -26,7 +26,7 @@ setup(
     author="Max Cha",
     author_email="max@mechasolution.com",
     maintainer="Mechasolution",
-    maintainer_email="techms5499@gmail.com",
+    maintainer_email="tech@mechasolution.com",
     description="MechaShip background package",
     license="Apache-2.0",
     tests_require=["pytest"],

@@ -4,7 +4,7 @@
   <name>mechaship_yolov8</name>
   <version>1.0.0</version>
   <description>ROS 2 package for YOLOv8 object detection and visualization.</description>
-  <maintainer email="techms5499@gmail.com">mechasolution</maintainer>
+  <maintainer email="tech@mechasolution.com">mechasolution</maintainer>
   <license>Apache-2.0</license>
   <author email="sydney@mechasolution.com">Sydney Kim</author>
 
