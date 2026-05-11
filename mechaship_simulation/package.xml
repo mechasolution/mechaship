@@ -4,7 +4,7 @@
   <name>mechaship_simulation</name>
   <version>1.0.0</version>
   <description>Gazebo simulation environment for Mechaship.</description>
-  <maintainer email="techms5499@gmail.com">Mechasolution</maintainer>
+  <maintainer email="tech@mechasolution.com">Mechasolution</maintainer>
   <license>Apache-2.0</license>
   <author email="sydney@mechasolution.com">Sydney Kim</author>
 
@@ -15,6 +15,12 @@
   <exec_depend>launch</exec_depend>
   <exec_depend>launch_ros</exec_depend>
   <exec_depend>ament_index_python</exec_depend>
+
+  <!-- Other ROS package dependencies -->
+  <exec_depend>mechaship_description</exec_depend>
+  <exec_depend>ros_gz_sim</exec_depend>
+  <exec_depend>ros_gz_bridge</exec_depend>
+  <exec_depend>ros_gz_image</exec_depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
