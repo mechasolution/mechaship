@@ -43,7 +43,7 @@ MechaShip은 ROS 2 기반 무인 수상정 개발을 위한 통합 패키지 모
 
 ```bash
 cd ~/ros2_ws/src
-git clone --recurse-submodules https://github.com/mechasolution/mechaship.git
+git clone -b jazzy-uipa --recurse-submodules https://github.com/mechasolution/mechaship.git
 
 cd ~/ros2_ws
 source /opt/ros/jazzy/setup.bash
@@ -86,11 +86,9 @@ ros2 launch mechaship_simulation gazebo.launch.py
 
 외부 드라이버 패키지는 git submodule로 포함되어 있습니다.
 
-- [`iahrs_ros2_driver`](https://github.com/mechasolution/iahrs_ros2_driver)
-- [`wtrtk_ros2_driver`](https://github.com/mechasolution/wtrtk_ros2_driver)
 - [`ydlidar_ros2_driver`](https://github.com/mechasolution/ydlidar_ros2_driver)
 - [`rf2o_laser_odometry`](https://github.com/mechasolution/rf2o_laser_odometry)
-- [`ntrip_client`](https://github.com/maax-cha/ntrip_client)
+- [`ros_wit_imu_node`](https://github.com/mechasolution/ros_wit_imu_node)
 
 ## 원격 조종
 
