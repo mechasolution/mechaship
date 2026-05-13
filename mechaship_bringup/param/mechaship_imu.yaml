@@ -1,7 +1,6 @@
 wit_imu_node:
   ros__parameters:
-    # port: /dev/ttyIMU
-    port: /dev/ttyUSB0
+    device: /dev/ttyIMU
     buadrate: 9600 # default 9600 after batch 24121704
     frame_id: imu_link
     gravity: 9.80665
