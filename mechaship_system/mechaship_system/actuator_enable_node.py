@@ -81,15 +81,23 @@ class ActuatorEnableNode(Node):
         self.__err_cnt = 0
 
         self.msg = ActuatorEnable.Request()
-
-    def __enable_actuator(self):
         self.__actuator_enable_client_hd = self.create_client(
             ActuatorEnable, "system/actuator/enable"
         )
-        while not self.__actuator_enable_client_hd.wait_for_service(timeout_sec=1.0):
+        self.__actuator_enable_future = None
+
+    def __enable_actuator(self):
+        if (
+            self.__actuator_enable_future is not None
+            and not self.__actuator_enable_future.done()
+        ):
+            return True
+
+        if not self.__actuator_enable_client_hd.service_is_ready():
             self.get_logger().warning(
                 "actuator service not available, waiting again..."
             )
+            return False
 
         self.msg.key_min_degree = self.__key_min_degree
         self.msg.key_max_degree = self.__key_max_degree
@@ -98,14 +106,24 @@ class ActuatorEnableNode(Node):
         self.msg.thruster_pulse_0_percentage = self.__thruster_pulse_0_percentage
         self.msg.thruster_pulse_100_percentage = self.__thruster_pulse_100_percentage
 
-        self.future = self.__actuator_enable_client_hd.call_async(self.msg)
-        self.executor.spin_until_future_complete(self.future)
-
-        self.get_logger().info(
-            "\033[32m메인보드와 연결되었습니다. (액추에이터 활성화됨)\033[0m"
+        self.__actuator_enable_future = self.__actuator_enable_client_hd.call_async(
+            self.msg
         )
+        self.__actuator_enable_future.add_done_callback(
+            self.__enable_actuator_done_callback
+        )
+        return True
 
-        self.__actuator_enable_client_hd.destroy()
+    def __enable_actuator_done_callback(self, future):
+        try:
+            future.result()
+            self.get_logger().info(
+                "\033[32m메인보드와 연결되었습니다. (액추에이터 활성화됨)\033[0m"
+            )
+        except Exception as e:
+            self.get_logger().error(f"액추에이터 활성화에 실패했습니다: {e}")
+        finally:
+            self.__actuator_enable_future = None
 
     def __get_mcu_ros_domain_id(self) -> int:
         mcu_ros_domain_id = -1
@@ -142,8 +160,7 @@ class ActuatorEnableNode(Node):
         for name, namespace, full_name in available_nodes:
             if name == "mcu_node":
                 if self.__last_node_status is False:
-                    self.__last_node_status = True
-                    self.__enable_actuator()
+                    self.__last_node_status = self.__enable_actuator()
                 self.__last_warning = 0
                 self.__err_cnt = 0
                 return
