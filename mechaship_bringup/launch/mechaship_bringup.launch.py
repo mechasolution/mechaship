@@ -5,7 +5,7 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
-from launch_ros.actions import LifecycleNode, Node
+from launch_ros.actions import Node
 
 
 def generate_launch_description():
@@ -118,7 +118,7 @@ def generate_launch_description():
     lidar_driver_launch_arg = DeclareLaunchArgument(
         "mechaship_lidar_parameter", default_value=mechaship_lidar_parameter
     )
-    lidar_driver_node = LifecycleNode(
+    lidar_driver_node = Node(
         executable="ydlidar_ros2_driver_node",
         package="ydlidar_ros2_driver",
         name="ydlidar_ros2_driver_node",

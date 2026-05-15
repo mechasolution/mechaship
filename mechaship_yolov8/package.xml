@@ -9,7 +9,7 @@
   <author email="sydney@mechasolution.com">Sydney Kim</author>
 
   <!-- Buildtool Dependency -->
-  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>ament_cmake_python</buildtool_depend>
 
   <!-- Launch dependencies -->
   <exec_depend>launch</exec_depend>

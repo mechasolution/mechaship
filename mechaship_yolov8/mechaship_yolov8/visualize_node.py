@@ -1,6 +1,7 @@
 import cv2
 import rclpy
 from cv_bridge import CvBridge
+from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 from rclpy.parameter import Parameter
 from rclpy.qos import qos_profile_sensor_data
@@ -142,13 +143,16 @@ def main(args=None):
     except KeyboardInterrupt:
         node.get_logger().info("Keyboard Interrupt (SIGINT)")
 
+    except ExternalShutdownException:
+        pass
+
     except Exception as e:
         node.get_logger().error(f"Exception: {e}")
 
     finally:
         cv2.destroyAllWindows()
         node.destroy_node()
-        rclpy.shutdown()
+        rclpy.try_shutdown()
 
 
 if __name__ == "__main__":

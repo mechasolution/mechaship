@@ -1,3 +1,5 @@
+import math
+
 import rclpy
 from mechaship_interfaces.msg import RgbwLedColor, ToneTopic
 from rclpy.node import Node
@@ -32,6 +34,9 @@ class TeleopJoystickNode(Node):
         self.__key_publisher_hd = self.create_publisher(
             Float64, "actuator/key/degree", 10
         )
+        self.__key_radian_publisher_hd = self.create_publisher(
+            Float64, "actuator/key/radian", 10  # for gazebo only
+        )
         self.__throttle_publisher_hd = self.create_publisher(
             Float64, "actuator/thruster/percentage", 10
         )
@@ -52,6 +57,8 @@ class TeleopJoystickNode(Node):
 
         self.__key_degree_msg = Float64()
         self.__key_degree_msg.data = self.__KEY_CENTER_DEGREE
+        self.__key_radian_msg = Float64()
+        self.__key_radian_msg.data = math.radians(self.__KEY_CENTER_DEGREE)
 
         self.__throttle_percentage_msg = Float64()
         self.__throttle_percentage_msg.data = self.__THROTTLE_MIN_PERCENTAGE
@@ -81,6 +88,7 @@ class TeleopJoystickNode(Node):
         self.__key_degree_msg.data = constrain(
             degree, self.__KEY_MIN_DEGREE, self.__KEY_MAX_DEGREE
         )
+        self.__key_radian_msg.data = math.radians(self.__key_degree_msg.data)
 
         self.__throttle_percentage_msg.data = constrain(
             data.axes[1] * self.__THROTTLE_MAX_PERCENTAGE,
@@ -132,6 +140,7 @@ class TeleopJoystickNode(Node):
         )
 
         self.__key_publisher_hd.publish(self.__key_degree_msg)
+        self.__key_radian_publisher_hd.publish(self.__key_radian_msg)
         self.__throttle_publisher_hd.publish(self.__throttle_percentage_msg)
 
     def __new_data_check_timer_callback(self):

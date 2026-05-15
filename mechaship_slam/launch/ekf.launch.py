@@ -29,12 +29,12 @@ def generate_launch_description():
     rf2o_laser_odometry_node = Node(
         executable="rf2o_laser_odometry_node",
         package="rf2o_laser_odometry",
-        name="rf2o_laser_odometry",
+        # name 지정 시 내부 노드 remap으로 rosout publisher 중복 경고 발생
         namespace="",
         parameters=[
             {
-                "laser_scan_topic": "scan",
-                "odom_topic": "scan/odom",
+                "laser_scan_topic": "/scan",
+                "odom_topic": "/scan/odom",
                 "publish_tf": True,
                 "base_frame_id": "base_footprint",
                 "odom_frame_id": "odom",
@@ -95,7 +95,7 @@ def generate_launch_description():
             rf2o_laser_odometry_node,
             # navsat_transform_launch_arg,
             # navsat_transform_node,
-            ekf_filter_launch_arg,
-            ekf_filter_node,
+            # ekf_filter_launch_arg,
+            # ekf_filter_node,
         ]
     )

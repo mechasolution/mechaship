@@ -1,11 +1,13 @@
+import sys
 import time
 from os.path import join
+
+from mechaship_yolov8.rknn.rknn_helper import RKNNHelper
 
 # RKNN
 IS_SBC = True
 try:
     from rknnlite.api import RKNNLite  # type: ignore
-    from utils.rknn_helper import RKNNHelper
 except ImportError:
     IS_SBC = False
 
@@ -13,6 +15,7 @@ except ImportError:
 import rclpy
 from ament_index_python.packages import get_package_share_directory
 from cv_bridge import CvBridge
+from rclpy.executors import ExternalShutdownException
 from rclpy.lifecycle import Node, Publisher, State, TransitionCallbackReturn
 from rclpy.parameter import Parameter
 from rclpy.qos import qos_profile_sensor_data
@@ -316,23 +319,33 @@ class DetectNode(Node):
 def main(args=None):
     rclpy.init(args=args)
     node = DetectNode()
+    exit_code = 0
 
     try:
         if node.trigger_configure() == TransitionCallbackReturn.SUCCESS:
-            node.trigger_activate()
-
-            rclpy.spin(node)
+            if node.trigger_activate() == TransitionCallbackReturn.SUCCESS:
+                rclpy.spin(node)
+            else:
+                exit_code = 1
+        else:
+            exit_code = 1
 
     except KeyboardInterrupt:
         node.get_logger().info("Keyboard Interrupt (SIGINT)")
 
+    except ExternalShutdownException:
+        pass
+
     except Exception as e:
         node.get_logger().error(f"Exception: {e}")
+        exit_code = 1
 
     finally:
         node.destroy_node()
-        rclpy.shutdown()
+        rclpy.try_shutdown()
+
+    return exit_code
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

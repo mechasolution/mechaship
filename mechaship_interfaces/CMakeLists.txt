@@ -30,8 +30,6 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/ActuatorDisable.srv"
   "srv/ActuatorEnable.srv"
   "srv/Tone.srv"
-  # "action/Key.action"
-  # "action/Thruster.action"
 )
 
 ament_package()

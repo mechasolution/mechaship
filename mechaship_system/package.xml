@@ -18,6 +18,7 @@
 
   <!-- Other ROS package dependencies -->
   <exec_depend>rclpy</exec_depend>
+  <exec_depend>ros2node</exec_depend>
   <exec_depend>std_msgs</exec_depend>
   <exec_depend>mechaship_interfaces</exec_depend>
 
