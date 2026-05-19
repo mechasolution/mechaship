@@ -16,7 +16,7 @@ def generate_launch_description():
     world_path = os.path.join(
         get_package_share_directory("mechaship_simulation"),
         "worlds",
-        f"{os.environ.get("WORLD_NAME", "empty")}.world",
+        f"{os.environ.get('WORLD_NAME', 'empty')}.world",
     )
 
     # config 파일 경로
