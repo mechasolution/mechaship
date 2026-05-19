@@ -20,6 +20,7 @@ def generate_launch_description():
         "model.sdf",
     )
 
+    # sdf 파일 읽기
     with open(sdf_path, "r") as sdf:
         robot_description = sdf.read()
 
@@ -30,6 +31,7 @@ def generate_launch_description():
                 default_value="false",
                 description="Use simulation (Gazebo) clock if true",
             ),
+            # 로봇 TF publish
             Node(
                 executable="robot_state_publisher",
                 package="robot_state_publisher",
@@ -44,6 +46,7 @@ def generate_launch_description():
                 emulate_tty=True,
                 # output="screen", # debug
             ),
+            # 로봇 joint 초기값 publish
             Node(
                 executable="joint_state_publisher",
                 package="joint_state_publisher",

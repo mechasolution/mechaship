@@ -13,6 +13,7 @@ def generate_launch_description():
         get_package_share_directory("mechaship_system"), "param"
     )
 
+    # 액추에이터 파라미터
     mechaship_actuator_parameter = LaunchConfiguration(
         "mechaship_actuator_parameter",
         default=os.path.join(pkg_share_dir_param, "actuator.yaml"),
@@ -22,6 +23,7 @@ def generate_launch_description():
         default_value=mechaship_actuator_parameter,
     )
 
+    # 액추에이터 활성화
     actuator_enable_node = Node(
         executable="actuator_enable_node",
         package="mechaship_system",
