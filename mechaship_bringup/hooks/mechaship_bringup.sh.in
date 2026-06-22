@@ -1,3 +1,2 @@
-export ROS_DOMAIN_ID=0
 export MODEL_NAME="mechaship"
 export WORLD_NAME="empty"
